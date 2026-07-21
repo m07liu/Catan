@@ -5,7 +5,7 @@ using namespace std;
 export class Dice {
     int type;
   public:
-    Dice(int type); // 1 for fair, 2 for loaded
+    Dice(int type); // 0 for fair, 1 for loaded
     virtual int roll() = 0;
 };
 

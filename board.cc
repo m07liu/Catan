@@ -8,6 +8,7 @@ using namespace std;
 
 export class Board {
     int boardType; // 1 for random, 2 for file
+    unsigned int seed = 000;
     map<int, vector<Tile>> tiles;
     vector<Vertex> vertices;
     vector<Edge> edges;
