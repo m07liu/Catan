@@ -1,10 +1,11 @@
 export module game;
 
 import board;
+import constants;
 
 using namespace std;
 
-class Game {
+export class Game {
     Board * theBoard;
   public:
     Game();
@@ -13,6 +14,7 @@ class Game {
     void nextPhase();
     void rollAndGive();
     void display();
+    void build(BuildingType::type, int id);
     virtual save();
     virtual load();
     ~Game();
