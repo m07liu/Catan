@@ -94,7 +94,7 @@ string Building::print() const {
     return string{colourToChar(owner)} + string{buildingLevelToChar(level)};
 }
 
-string Roade::print() const {
+string Road::print() const {
     return string{colourToChar(owner)} + "R";
 }
 

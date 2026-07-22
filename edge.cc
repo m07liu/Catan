@@ -1,4 +1,4 @@
-export module edge
+export module edge;
 
 import <vector>;
 import constants;
