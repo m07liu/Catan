@@ -1,6 +1,8 @@
 module board;
 
-import <cstdlib>;
+import <random>;
+import <algorithm>;
+import <chrono>;
 import <vector>;
 import <map>;
 import <iostream>;
@@ -45,7 +47,9 @@ Board::~Board();
 RandomBoard::RandomBoard(int seed) : seed{seed} {}
 
 void RandomBoard::init() {
-    // use seeded random gen here
+    vector<int> numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    default_random_engine rng{seed};
+    
 }
 
 FileBoard::FileBoard(ifstream &file) : file{file} {}

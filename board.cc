@@ -12,7 +12,7 @@ import vertex;
 using namespace std;
 
 export class Board {
-    int seed = 000;
+    unsigned seed = 000;
     map<int, vector<Tile>> tiles;
     vector<Vertex> vertices;
     vector<Edge> edges;
