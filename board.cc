@@ -22,6 +22,7 @@ export class Board {
     void addTile();
     void addVertex();
     void addEdge();
+    void initBoard();
   public:
     virtual void init() = 0; // For board setup
 
