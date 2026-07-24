@@ -8,7 +8,7 @@ using namespace std;
 export class Tile {
     int val;
     TileType type;
-    bool hasGeese = false;
+    bool geese = false;
     vector<int> adjVertices;
     vector<int> adjEdges; 
 
