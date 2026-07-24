@@ -5,7 +5,7 @@ import <string>;
 
 using namespace std;
 
-export enum class Color {BLUE, RED, ORANGE, YELLOW, NONE};
+export enum class Colour {BLUE, RED, ORANGE, YELLOW, NONE};
 export enum class TileType {BRICK, ENERGY, GLASS, HEAT, WIFI, PARK, NONE};
 export enum class ResourceType {BRICK, ENERGY, GLASS, HEAT, WIFI, NONE};
 export enum class BuildingLevel {BASEMENT, HOUSE, TOWER, NONE};
