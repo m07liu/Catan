@@ -13,16 +13,14 @@ using namespace std;
 
 export class Board {
     unsigned seed = 000;
-    map<int, vector<Tile>> tiles;
     vector<Vertex> vertices;
     vector<Edge> edges;
     int geeseTile;
   protected:
+    map<int, vector<Tile>> tiles;
     // Helpers for board initilization
-    void addTile();
-    void addVertex();
-    void addEdge();
     void initBoard();
+    void tileNeighbors(int id);
   public:
     virtual void init() = 0; // For board setup
 
