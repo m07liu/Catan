@@ -10,10 +10,9 @@ export class Edge {
     Colour owner = Colour::NONE;
     Road road;
     vector<int> adjVertices;
-    vector<int> adjEdges;
 
   public:
-    Edge(int id, vector<int> adjVertices, vector<int> adjEdges);
+    Edge(int id, vector<int> adjVertices);
     int getId() const;
     const vector<int> &getAdjVertices const;
     const vector<int> &getAdjEdges() const;

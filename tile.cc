@@ -9,7 +9,7 @@ export class Tile {
     int id;
     int val;
     TileType type;
-    bool hasGeese;
+    bool geese = false;
     vector<int> adjVertices;
     vector<int> adjEdges; 
 

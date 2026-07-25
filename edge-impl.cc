@@ -5,8 +5,7 @@ import constants;
 import <string>;
 using namespace std;
 
-Edge::Edge(int id, vector<int> adjVertices, vector<int> adjEdges)
-    : id{id}, adjVertices{move(adjVertices)}, adjEdges{move(adjEdges)} {}
+Edge::Edge(int id, vector<int> adjVertices) : id{id}, adjVertices{move(adjVertices)} {}
 
 int Edge::getId() const { return id; }
 

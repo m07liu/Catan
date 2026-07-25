@@ -13,5 +13,5 @@ int Tile::getVal() const { return val; }
 TileType Tile::getType() const { return type; }
 const vector<int> &Tile::getAdjVertices() const { return vertices; }
 const vector<int> &Tile::getEdges() const { return edges; }
-bool Tile::hasGeese() const { return hasGeese; }
-void Tile::setGeese() { hasGeese = true; }
+bool Tile::hasGeese() const { return geese; }
+void Tile::setGeese() { geese = true; }

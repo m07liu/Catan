@@ -11,17 +11,19 @@ import vertex;
 
 using namespace std;
 
+// One entry per tile, in tile-id order: the resource it produces and its value.
+export using Layout = vector<pair<TileType, int>>;
+
 export class Board {
-    int seed = 000;
-    map<int, vector<Tile>> tiles;
+    vector<Tile> tiles;        // 19, indexed by tile id  
     vector<Vertex> vertices;
     vector<Edge> edges;
-    int geeseTile;
+    int geeseTile = 0;
+
   protected:
-    // Helpers for board initilization
-    void addTile();
-    void addVertex();
-    void addEdge();
+    // Builds the whole graph (vertices, edges, tiles) from a finished layout.
+    void initBoard(const Layout &layout);
+
   public:
     virtual void init() = 0; // For board setup
 
@@ -29,17 +31,32 @@ export class Board {
     void save();
     void giveResources(int dieVal);
 
+
+    //looking up things
     const Tile &findTile(int id) const;
     const vector<Tile> &findTiles(int val) const;
     const Vertex &findVertex(int id) const;
     const Edge &findEdge(int id) const;
+    // const Tile &getTile(int id) const;
+    // const Vertex &getVertex(int id) const;
+    // const Edge &getEdge(int id) const;
+    // const vector<Tile> &findTiles(int val) const; //find list of tiles with value val
+
+    bool isVertex(int id) const;
+    bool isEdge(int id) const;
+    bool isTile(int id) const;
+
+    //geese related
     int getGeeseTile() const;
     void moveGeese(int id);
+    // Colours with a residence on this tile, in builder order, excluding active.
+    vector<Colour> ownersOnTile(int tileId, Colour active) const;
     
     bool canBuild(int id, Colour c) const;
+    bool canUpgrade(int id, Colour c) const;
     bool canPlaceRoad(int id, Colour c) const;
     
-    virtual ~Board();
+    virtual ~Board() = default;
 
     friend ostream &operator<<(ostream &out, const Board &b);
 
