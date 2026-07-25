@@ -15,6 +15,41 @@ import vertex;
 
 using namespace std;
 
+//  Geometry things that only the display needs
+enum { TL, TR, ML, MR, BL, BR };
+enum { E_TOP, E_UL, E_UR, E_LL, E_LR, E_BOT };
+ 
+const int NUM_TILES = 19, NUM_VERTICES = 54, NUM_EDGES = 72;
+ 
+const int TILE_VERTICES[NUM_TILES][6] = {
+    { 0,  1,  3,  4,  8,  9},
+    { 2,  3,  7,  8, 13, 14}, { 4,  5,  9, 10, 15, 16},
+    { 6,  7, 12, 13, 18, 19}, { 8,  9, 14, 15, 20, 21}, {10, 11, 16, 17, 22, 23},
+    {13, 14, 19, 20, 25, 26}, {15, 16, 21, 22, 27, 28},
+    {18, 19, 24, 25, 30, 31}, {20, 21, 26, 27, 32, 33}, {22, 23, 28, 29, 34, 35},
+    {25, 26, 31, 32, 37, 38}, {27, 28, 33, 34, 39, 40},
+    {30, 31, 36, 37, 42, 43}, {32, 33, 38, 39, 44, 45}, {34, 35, 40, 41, 46, 47},
+    {37, 38, 43, 44, 48, 49}, {39, 40, 45, 46, 50, 51},
+    {44, 45, 49, 50, 52, 53}
+};
+ 
+const int TILE_EDGES[NUM_TILES][6] = {
+    { 0,  1,  2,  6,  7, 10},
+    { 3,  5,  6, 13, 14, 18}, { 4,  7,  8, 15, 16, 19},
+    { 9, 12, 13, 20, 21, 26}, {10, 14, 15, 22, 23, 27}, {11, 16, 17, 24, 25, 28},
+    {18, 21, 22, 30, 31, 35}, {19, 23, 24, 32, 33, 36},
+    {26, 29, 30, 37, 38, 43}, {27, 31, 32, 39, 40, 44}, {28, 33, 34, 41, 42, 45},
+    {35, 38, 39, 47, 48, 52}, {36, 40, 41, 49, 50, 53},
+    {43, 46, 47, 54, 55, 60}, {44, 48, 49, 56, 57, 61}, {45, 50, 51, 58, 59, 62},
+    {52, 55, 56, 63, 64, 67}, {53, 57, 58, 65, 66, 68},
+    {61, 64, 65, 69, 70, 71}
+};
+ 
+const int TILE_COL[NUM_TILES]  = {20, 10, 30, 0, 20, 40, 10, 30, 0, 20, 40,
+                                  10, 30, 0, 20, 40, 10, 30, 20};
+const int TILE_LINE[NUM_TILES] = { 0,  4,  4, 8,  8,  8, 12, 12, 16, 16, 16,
+                                  20, 20, 24, 24, 24, 28, 28, 32};
+
 void Board::initBoard() {
     int numofvertices = 54;
     int numofedges = 72;
@@ -89,7 +124,7 @@ void Board::initBoard() {
         else if (12 <= i && i <= 17) edges.emplace_back(Edge{i, vector<int>{i-6, i}});
         else if (i == 18) edges.emplace_back(Edge{i, vector<int>{13, 14}});
         else if (i == 19) edges.emplace_back(Edge{i, vector<int>{15, 16}});
-        else if (20 <= i && i <= 25) edges.emplace_back(Edge{i, vector<int>{2, 3}});
+        else if (20 <= i && i <= 25) edges.emplace_back(Edge{i, vector<int>{i-8, i-2}});
         else if (i == 26) edges.emplace_back(Edge{i, vector<int>{18, 19}});
         else if (i == 27) edges.emplace_back(Edge{i, vector<int>{20, 21}});
         else if (i == 28) edges.emplace_back(Edge{i, vector<int>{22, 23}});
@@ -129,18 +164,67 @@ void Board::save();
 
 void Board::giveResources(int dieVal);
 
-const Tile &Board::findTile(int id) const;
-const vector<Tile> &Board::findTiles(int val) const;
-const Vertex &Board::findVertex(int id) const;
-const Edge &Board::findEdge(int id) const;
+//lookups
+bool Board::isVertex(int id) const { return id >= 0 && id < NUM_VERTICES; }
+bool Board::isEdge(int id) const   { return id >= 0 && id < NUM_EDGES; }
+bool Board::isTile(int id) const   { return id >= 0 && id < NUM_TILES; }
+ 
+const Tile &Board::findTile(int id) const     { return tiles[id]; }
+const Vertex &Board::findVertex(int id) const { return vertices[id]; }
+const Edge &Board::findEdge(int id) const     { return edges[id]; }
+ 
+vector<int> Board::findTiles(int val) const {
+    vector<int> found;
+    for (const Tile &t : tiles) {
+        if (t.getVal() == val && t.getType() != TileType::PARK) {
+            found.emplace_back(t.getId());
+        }
+    }
+    return found;
+}
 
 int Board::getGeeseTile() const { return geeseTile; }; 
 
-void Board::moveGeese(int id);
+void Board::moveGeese(int id) {
+    if (!isTile(id) || id == geeseTile) return;
+    tiles[geeseTile].setGeese(false);
+    geeseTile = id;
+    tiles[geeseTile].setGeese(true);
+}
+
+vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
+    vector<Colour> owners;
+    if (!isTile(tileId)) return owners;
+    for (int vid : tiles[tileId].getAdjVertices()) {
+        const Vertex &v = vertices[vid];
+        if (!v.hasBuilding()) continue;
+        Colour owner = v.getOwner();
+        if (owner == active) continue;
+        if (find(owners.begin(), owners.end(), owner) == owners.end()) {
+            owners.emplace_back(owner);
+        }
+    }
+    sort(owners.begin(), owners.end(), [](Colour a, Colour b) {
+        return static_cast<int>(a) < static_cast<int>(b);
+    });
+    return owners;
+}
 
 bool Board::canBuild(int id, Colour c) const;
 
+bool Board::canUpgrade(int id, Colour c) const {
+    if (!isVertex(id)) return false;
+    const Vertex &v = vertices[id];
+    return v.hasBuilding()
+        && v.getOwner() == c
+        && v.getBuilding().level != BuildingLevel::TOWER;
+}
+
 bool Board::canPlaceRoad(int id, Colour c) const;
+
+void Board::build(int id, Colour c)     { vertices[id].build(c); }
+void Board::improve(int id)             { vertices[id].upgradeBuilding(); }
+void Board::placeRoad(int id, Colour c) { edges[id].placeRoad(c); }
 
 Board::~Board();
 
