@@ -5,9 +5,12 @@ import <map>;
 import <iostream>;
 import <fstream>;
 import <string>;
+import <utility>;
+import <memory>;
 import tile;
 import edge;
 import vertex;
+import constants;
 
 using namespace std;
 
@@ -29,12 +32,12 @@ export class Board {
 
     void display();
     void save();
-    void giveResources(int dieVal);
+    map<Colour, Inventory> giveResources(int dieVal) const;
 
 
     //looking up things
     const Tile &findTile(int id) const;
-    const vector<Tile> &findTiles(int val) const;
+    const vector<int> &findTiles(int val) const;
     const Vertex &findVertex(int id) const;
     const Edge &findEdge(int id) const;
     // const Tile &getTile(int id) const;
@@ -55,6 +58,15 @@ export class Board {
     bool canBuild(int id, Colour c) const;
     bool canUpgrade(int id, Colour c) const;
     bool canPlaceRoad(int id, Colour c) const;
+
+    void build(int id, Colour c);
+    void improve(int id);
+    void placeRoad(int id, Colour c);
+
+    // save helpers used by Game
+    vector<int> roadsOwnedBy(Colour c) const;       // ascending edge ids
+    vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const;
+    int pointsOf(Colour c) const;
     
     virtual ~Board() = default;
 
@@ -65,6 +77,7 @@ export class Board {
 
 // Concrete Products
 export class RandomBoard : public Board {
+    unsigned seed;
   public:
     RandomBoard(int seed);
     virtual init() override;
