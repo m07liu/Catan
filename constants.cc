@@ -5,6 +5,10 @@ import <string>;
 
 using namespace std;
 
+export const int NUM_TILES = 19;
+export const int NUM_VERTICES = 54;
+export const int NUM_EDGES = 72;
+
 export enum class Color {BLUE, RED, ORANGE, YELLOW, NONE};
 export enum class TileType {BRICK, ENERGY, GLASS, HEAT, WIFI, PARK, NONE};
 export enum class ResourceType {BRICK, ENERGY, GLASS, HEAT, WIFI, NONE};
@@ -19,6 +23,9 @@ export struct Inventory {
         
     Inventory &operator+=(const Inventory &other);
     Inventory &operator-=(const Inventory &other);
+    int &operator[](int i);
+    int operator[](int i) const;
+    bool isEmpty() const;
     bool covers(const Inventory &cost) const;
     int total() const;
 
@@ -31,12 +38,12 @@ export struct Building {
     void upgrade();
     int yield() const;
     string print() const;
-}
+};
 
 export struct Road {
     Colour owner;
     string print() const;
-}
+};
 
 export const Inventory RoadCost{0, 0, 0, 1, 1};
 export const map<BuildingLevel, Inventory> BuildingCosts {
@@ -50,4 +57,7 @@ export string tileTypeToString(TileType t);
 export string buildingLevelToString(BuildingLevel level);
 export char buildingLevelToChar(BuildingLevel level);
 export char colourToChar(Colour c);
+export string invnumToResource(int i) const;
+export Inventory singletonInv(int i);
+
 

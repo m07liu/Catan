@@ -29,8 +29,9 @@ export class Board {
     void save();
     void giveResources(int dieVal);
 
-    const Tile &findTiles(int id) const;
-    const vector<Tile> &findVertex(int val) const;
+    const Tile &findTile(int id) const;
+    const vector<Tile> &findTiles(int val) const;
+    const Vertex &findVertex(int id) const;
     const Edge &findEdge(int id) const;
     int getGeeseTile() const;
     void moveGeese(int id);

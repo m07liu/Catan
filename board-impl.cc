@@ -24,10 +24,9 @@ void Board::save();
 
 void Board::giveResources(int dieVal);
 
-const Tile &Board::findTiles(int id) const;
-
-const vector<Tile> &Board::findVertex(int val) const;
-
+const Tile &Board::findTile(int id) const;
+const vector<Tile> &Board::findTiles(int val) const;
+const Vertex &Board::findVertex(int id) const;
 const Edge &Board::findEdge(int id) const;
 
 int Board::getGeeseTile() const { return geeseTile; }

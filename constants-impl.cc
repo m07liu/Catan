@@ -22,6 +22,26 @@ Inventory &Inventory::operator-=(const Inventory &other) {
     return *this;
 }
 
+int &Inventory::operator[](int i) {
+    if (i == 0) return bricks;
+    else if (i == 1) return energy;
+    else if (i == 2) return glass;
+    else if (i == 3) return heat;
+    return wifi;
+}
+
+int Inventory::operator[](int i) const {
+    if (i == 0) return bricks;
+    else if (i == 1) return energy;
+    else if (i == 2) return glass;
+    else if (i == 3) return heat;
+    return wifi;
+}
+
+bool Inventory::isEmpty() const {
+    return total() == 0;
+}
+
 bool Inventory::covers(const Inventory &cost) const {
     return bricks >= cost.bricks && 
             energy >= cost.energy && 
@@ -48,7 +68,7 @@ char colourToChar(Colour c) {
     else if (c == Colour::RED) return "R";
     else if (c == Colour::ORANGE) return "O";
     else if (c == Colour::YELLOW) return "Y";
-    return '';
+    return ' ';
 }
 
 string tileTypeToString(TileType t) {
@@ -73,6 +93,21 @@ char buildingLevelToChar(BuildingLevel level) {
     else if (level == BuildingLevel::HOUSE) return 'H';
     else if (level == BuildingLevel::TOWER) return 'T';
     return ' ';
+}
+
+string invnumToResource(int i) const {
+    if (i == 0) return "BRICK";
+    else if (i == 1) return "ENERGY";
+    else if (i == 2) return "GLASS";
+    else if (i == 3) return "HEAT";
+    else if (i == 4) return "WIFI";
+    return "";
+}
+
+Inventory singletonInv(int i) {
+    Inventory inv;
+    v[i] = 1;
+    return inv;
 }
 
 

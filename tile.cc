@@ -6,6 +6,7 @@ import constants;
 using namespace std;
 
 export class Tile {
+    int id;
     int val;
     TileType type;
     bool hasGeese;
@@ -13,7 +14,8 @@ export class Tile {
     vector<int> adjEdges; 
 
   public:
-    Tile(int val, TileType type, vector<int> adjVertices, vector<int> adjEdges);
+    Tile(int id, int val, TileType type, vector<int> adjVertices, vector<int> adjEdges);
+    int getId() const;
     int getVal() const;
     TileType getType() const;
     const vector<int> &getAdjVertices() const;

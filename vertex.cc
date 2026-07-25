@@ -10,11 +10,13 @@ export class Vertex {
     Building building;
     Colour owner = Colour::NONE;
     vector<int> adjEdges;
+    vector<int> adjTiles;
 
   public:
-    Vertex(int id, vector<int> adjEdges);
+    Vertex(int id, vector<int> adjEdges, vector<int> adjTiles);
 
     int getId() const;
+    const vector<int> &getAdjTiles() const;
     const vector<int> &getAdjEdges() const;
     const Building &getBuilding() const;
     Colour getOwner() const;
