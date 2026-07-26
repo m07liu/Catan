@@ -7,7 +7,6 @@ using namespace std;
 
 export class Edge {
     int id;
-    Colour owner = Colour::NONE;
     Road road;
     vector<int> adjVertices;
 

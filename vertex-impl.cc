@@ -11,11 +11,14 @@ int Vertex::getId() const { return id; }
 const vector<int> &Vertex::getAdjTiles() const { return adjTiles; }
 const vector<int> &Vertex::getAdjEdges() const { return adjEdges; }
 const Building &Vertex::getBuilding() const { return building; }
-Colour Vertex::getOwner() const { return owner; }
-bool Vertex::hasBuilding() const { return owner != Colour::NONE; }
-void Vertex::upgradeBuilding() { return building->level; }
-string Vertex::printBuilding() const { return building->print(); }
-void Vertex::build(Colour c) { building = Building{c, BuildingLevel::BASEMENT}; }
+Colour Vertex::getOwner() const { return building.owner; }
+bool Vertex::hasBuilding() const { return building.owner != Colour::NONE; }
+void Vertex::upgradeBuilding() { return building.level; }
+string Vertex::printBuilding() const { return building.print(); }
+void Vertex::build(Colour c) { 
+    building.owner = c;
+    building.level = BuildingLevel::BASEMENT;
+}
 
 // bool Vertex::isBuildableBy(Colour c);
 

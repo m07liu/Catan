@@ -8,7 +8,6 @@ using namespace std;
 export class Vertex {
     int id;
     Building building;
-    Colour owner = Colour::NONE;
     vector<int> adjEdges;
     vector<int> adjTiles;
 

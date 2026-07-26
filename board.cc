@@ -26,7 +26,6 @@ export class Board {
   protected:
     // Builds the whole graph (vertices, edges, tiles) from a finished layout.
     void initBoard(const Layout &layout);
-
   public:
     virtual void init() = 0; // For board setup
 
@@ -79,7 +78,7 @@ export class Board {
 export class RandomBoard : public Board {
     unsigned seed;
   public:
-    RandomBoard(int seed);
+    RandomBoard(unsigned seed);
     virtual init() override;
 };
 
@@ -93,5 +92,6 @@ export class FileBoard : public Board {
 // Concrete Creator
 export class BoardFactory {
   public:
-    static unique_ptr<Board> createBoard(const string & type);
+    unique_ptr<Board> createBoard(int type, unsigned seed, ifstream & file);
+
 };

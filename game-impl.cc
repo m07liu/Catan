@@ -15,7 +15,10 @@ import player;
 using namespace std;
 
 
-Game::Game(unique_ptr<Board> board, unsigned seed): board{move(board)}, rng{seed} {
+Game::Game(int type, unsigned seed, const string & file) {
+    ifstream source {file};
+    auto factory = make_unique<BoardFactory>();
+    board = factory->createBoard(type, seed, source);
     players.reserve(4);
     for (int i = 0; i < 4; ++i) {
         players.emplace_back(static_cast<Colour>(i));

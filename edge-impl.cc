@@ -13,10 +13,10 @@ const vector<int> &Edge::getAdjVertices const { return adjVertices; }
 
 const vector<int> &Edge::getAdjEdges() const { return adjEdges; }
 
-Colour Edge::getOwner() const { return owner; }
+Colour Edge::getOwner() const { return road.owner; }
 
-bool Edge::hasRoad() const { return owner != Colour::NONE; }
+bool Edge::hasRoad() const { return road.owner != Colour::NONE; }
 
-string Edge::printRoad() const { return road->print(); }
+string Edge::printRoad() const { return road.print(); }
 
 void Edge::placeRoad(Colour c) { road = Road{c}; }

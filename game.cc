@@ -14,7 +14,6 @@ export class Game {
     unique_ptr<Board> board;
     vector<Player> players;
     int curPlayer = 0;
-    default_random_engine rng;
     int winner = -1;
 
     void prompt() const;
@@ -49,7 +48,7 @@ export class Game {
 
     
   public:
-    Game(unique_ptr<Board> board, unsigned seed);
+    Game(int type, unsigned seed, const string & file); // 0: random board, 1: file board
     void run();
     void display();
     virtual save(const string &file) const;

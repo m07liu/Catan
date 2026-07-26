@@ -33,8 +33,8 @@ export struct Inventory {
 };
 
 export struct Building {
-    Colour owner;
-    BuildingLevel level;
+    Colour owner = Colour::NONE;
+    BuildingLevel level = BuildingLevel::NONE;
 
     void upgrade();
     int yield() const;
@@ -42,7 +42,7 @@ export struct Building {
 };
 
 export struct Road {
-    Colour owner;
+    Colour owner = Colour::NONE;
     string print() const;
 };
 

@@ -21,7 +21,7 @@ enum { E_TOP, E_UL, E_UR, E_LL, E_LR, E_BOT };
  
 const int NUM_TILES = 19, NUM_VERTICES = 54, NUM_EDGES = 72;
  
-const int TILE_VERTICES[NUM_TILES][6] = {
+const vector<vector<int>> TILE_VERTICES = {
     { 0,  1,  3,  4,  8,  9},
     { 2,  3,  7,  8, 13, 14}, { 4,  5,  9, 10, 15, 16},
     { 6,  7, 12, 13, 18, 19}, { 8,  9, 14, 15, 20, 21}, {10, 11, 16, 17, 22, 23},
@@ -33,7 +33,7 @@ const int TILE_VERTICES[NUM_TILES][6] = {
     {44, 45, 49, 50, 52, 53}
 };
  
-const int TILE_EDGES[NUM_TILES][6] = {
+const vector<vector<int>> TILE_EDGES = {
     { 0,  1,  2,  6,  7, 10},
     { 3,  5,  6, 13, 14, 18}, { 4,  7,  8, 15, 16, 19},
     { 9, 12, 13, 20, 21, 26}, {10, 14, 15, 22, 23, 27}, {11, 16, 17, 24, 25, 28},
@@ -230,7 +230,7 @@ Board::~Board();
 
 //------------------------------Concrete Products-------------------------------
 
-RandomBoard::RandomBoard(int seed) : seed{seed} {}
+RandomBoard::RandomBoard(unsigned seed) : seed{seed} {}
 
 void RandomBoard::init() {
     initBoard();
@@ -246,16 +246,21 @@ void RandomBoard::init() {
         TileType::ENERGY, TileType::ENERGY,TileType::ENERGY, TileType::ENERGY,  
         TileType::GLASS, TileType::GLASS, TileType::GLASS, TileType::GLASS,
     };
+
     default_random_engine rng{seed};
     shuffle(dicenums.begin(), dicenums.end(), rng);
     shuffle(tiles.begin(), tiles.end(), rng);
-    int park = 0; // tile id for the park
-    for (auto iter : dicenums) {
-        if (iter == 7) break;
-        park++;
-    }
-    for (int i = 0; i < 18; i++) {
-        
+
+    int tilesindex = 0; // Used to skip when the tile is of type PARK
+    for (int i = 0; i < 19; i++) {
+        if (dicenums[i] == 7) { // Park Tile
+            tiles.emplace_back(Tile{i, dicenums[i], TileType::PARK, TILE_VERTICES[i], TILE_EDGES[i]});
+            tiles[i].setGeese(); // Change Geese to True
+            geeseTile = i;
+        } else {
+            tiles.emplace_back(Tile{i, dicenums[i], tiles[tilesindex], TILE_VERTICES[i], TILE_EDGES[i]});
+            tilesindex++;
+        }
     }
 }
 
@@ -263,6 +268,31 @@ FileBoard::FileBoard(ifstream &file) : file{file} {}
 
 void FileBoard::init() {
     initBoard();
+    TileType tt;
     int input; 
+    bool dice = false;
+    int id = 0;
+    while (file >> input) {
+        if (dice && 2 <= input && input <= 12) { // Input is dice number for the tile
+            tiles.emplace_back(Tile{id, input, tt, TILE_VERTICES[id], TILE_EDGES[id]});
+            id++;
+        } else if (! dice && 0 <= input && input <= 5) { // Input is tile type
+            tt = static_cast<TileType>(input); // Convert input to TileType
+        } else { // Invalid input
+            cout << "Invalid Input! Please re-enter a valid number:" << endl;
+            continue;
+        }
+        dice = ! dice;
+    }
+}
 
+unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, ifstream &file) {
+    if (type == 0) {
+        auto ret = make_unique<Board>(seed);
+        ret->init();
+        return ret;
+    }
+    auto ret = make_unique<Board>(file);
+    ret->init();
+    return ret;
 }
