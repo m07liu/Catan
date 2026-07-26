@@ -19,10 +19,10 @@ export class Tile {
     int getVal() const;
     TileType getType() const;
     const vector<int> &getAdjVertices() const;
-    const vector<int> &getEdges() const;
+    const vector<int> &getAdjEdges() const;
     bool hasGeese() const;
     void setGeese();
     
-}
+};
 
 

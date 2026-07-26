@@ -32,6 +32,7 @@ export class Board {
     void display();
     void save();
     map<Colour, Inventory> giveResources(int dieVal) const;
+    int pointsOf(Colour c) const;
 
 
     //looking up things

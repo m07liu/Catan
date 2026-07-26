@@ -162,7 +162,30 @@ void Board::display();
 
 void Board::save();
 
-void Board::giveResources(int dieVal);
+int Board::pointsOf(Colour c) const {
+    int points = 0;
+    for (const Vertex &v : vertices) {
+        if (v.hasBuilding() && v.getOwner() == c) points += v.getBuilding().yield();
+    }
+    return points;
+}
+
+map<Colour, Inventory> Board::giveResources(int dieVal) const {
+    map<Colour, Inventory> gained;
+    for (const Tile &t : tiles) {
+        if (t.getVal() != dieVal) continue;
+        if (t.hasGeese()) continue;
+        ResourceType r = resourceOf(t.getType());
+        if (r == ResourceType::NONE) continue;
+ 
+        for (int vid : t.getAdjVertices()) {
+            const Vertex &v = vertices[vid];
+            if (!v.hasBuilding()) continue;
+            addResource(gained[v.getOwner()], r, v.getBuilding().yield());
+        }
+    }
+    return gained;
+}
 
 //lookups
 bool Board::isVertex(int id) const { return id >= 0 && id < NUM_VERTICES; }
@@ -210,7 +233,27 @@ vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
     return owners;
 }
 
-bool Board::canBuild(int id, Colour c) const;
+//legal move check
+bool Board::canBuild(int id, Colour c) const{
+    if (!isVertex(id)) return false;
+    const Vertex &v = vertices[id];
+    if (v.hasBuilding()) return false;
+ 
+    // Distance rule: no residence on any adjacent vertex, any colour.
+    for (int eid : v.getAdjEdges()) {
+        for (int nb : edges[eid].getAdjVertices()) {
+            if (nb != id && vertices[nb].hasBuilding()) return false;
+        }
+    }
+ 
+    if (setupPhase) return true;
+ 
+    // Otherwise this builder needs a road touching the vertex.
+    for (int eid : v.getAdjEdges()) {
+        if (edges[eid].hasRoad() && edges[eid].getOwner() == c) return true;
+    }
+    return false;
+}
 
 bool Board::canUpgrade(int id, Colour c) const {
     if (!isVertex(id)) return false;
@@ -220,7 +263,27 @@ bool Board::canUpgrade(int id, Colour c) const {
         && v.getBuilding().level != BuildingLevel::TOWER;
 }
 
-bool Board::canPlaceRoad(int id, Colour c) const;
+bool Board::canPlaceRoad(int id, Colour c) const {
+    if (!isEdge(id)) return false;
+    const Edge &e = edges[id];
+    if (e.hasRoad()) return false;
+ 
+    for (int vid : e.getAdjVertices()) {
+        const Vertex &v = vertices[vid];
+        if (v.hasBuilding()) {
+            // Own residence connects here, other color residence blocks this
+            // but the edge may still be reachable from its other end.
+            if (v.getOwner() == c) return true;
+            continue;
+        }
+        for (int other : v.getAdjEdges()) {
+            if (other == id) continue;
+            if (edges[other].hasRoad() && 
+                edges[other].getOwner() == c) return true;
+        }
+    }
+    return false;
+}
 
 void Board::build(int id, Colour c)     { vertices[id].build(c); }
 void Board::improve(int id)             { vertices[id].upgradeBuilding(); }
