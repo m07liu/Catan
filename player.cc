@@ -1,5 +1,7 @@
 export module player;
 
+import <random>;
+import <memory>
 import dice;
 import constants;
 
@@ -7,10 +9,10 @@ using namespace std;
 
 export class Player {
     Colour c;
-    bool computer;
-    int points;
+    bool computer = false;
+    int points = 0;
     Inventory items;
-    Dice die;
+    unique_ptr<Dice> die = make_unique<LoadedDice>();
   public:
     Player(Colour c);
 
@@ -24,7 +26,7 @@ export class Player {
     bool canAfford(const Inventory &i) const;
     void setDice(unique_ptr<Dice> d);
 
-    virtual int roll();
+    int roll(default_random_engine &rng);
     virtual void save();
     virtual void load();
 };
