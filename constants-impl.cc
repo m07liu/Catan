@@ -133,3 +133,23 @@ string Road::print() const {
     return string{colourToChar(owner)} + "R";
 }
 
+
+optional<Colour> parseColour(const string &s) {
+    string str = toLower(s);
+    if (str == "blue") return Colour::BLUE;
+    if (str == "red") return Colour::RED;
+    if (str == "orange") return Colour::ORANGE;
+    if (str == "yellow") return Colour::YELLOW;
+    return nullopt;
+}
+
+optional<int> parseResourceIdx(const string &s) {
+    string str = toLower(s);
+    if (str == "brick") return 0;
+    if (str == "energy") return 1;
+    if (str == "glass") return 2;
+    if (str == "heat") return 3;
+    if (str == "wifi") return 4;
+    return nullopt;
+
+}

@@ -61,4 +61,7 @@ export char colourToChar(Colour c);
 export string invnumToResource(int i) const;
 export Inventory singletonInv(int i);
 
+export optional<Colour> parseColour(const string &s);
+export optional<int> parseResource(const string &s);
+
 

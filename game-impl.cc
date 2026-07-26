@@ -324,13 +324,124 @@ void Game::distributeResources(int rollVal) {
 }
 
 
+bool Game::isBuildable(const Player &p, int vertexId) {
+    if (vertexId < 0 || vertexId >= NUM_VERTICES || !board->canBuild(vertexId, p.getColour())) {
+        cout << "You cannot build here." << endl;
+        return false;
+    }
+    if (!p.canAfford(BuildCosts.at(BuildingLevel::BASEMENT))) {
+        cout << "You do not have enough resources." << endl;
+        return false;
+    }
+    return true;
+}
 
-bool Game::isBuildable(const Player &p, int vertexId);
-bool Game::isPlaceable(const Player &p, int edgeId);
-void Game::build(Player &p, int vertexId);
-void Game::place(Player &p, int edgeId);
-bool Game::canImprove(const Player &p, int vertexId);
-void Game::improve(Player &p, int vertexId);
-bool Game::canTrade(Player &p1, Player &p2, const string &give, const string &receive);
+bool Game::isPlaceable(const Player &p, int edgeId) {
+    if (edgeId < 0 || edgeId >= NUM_EDGES || !board->canPlace(edgeId, p.getColour())) {
+        cout << "You cannot build here." << endl;
+        return false;
+    }
+    if (!p.canAfford(RoadCost)) {
+        cout << "You do not have enough resources." << endl;
+        return false;
+    }
+    return true;
+}
+
+void Game::build(Player &p, int vertexId) {
+    if (!isBuildable(p, vertexId)) return;
+
+    board->findVertex(vertexId).build(p.getColour());
+    p.giveResources(BuildCosts.at(BuildingLevel::BASEMENT));
+    p.addPoints(1);
+    if (p.getPoints() >= 10) winner = static_cast<int>(p.getColour());
+
+}
+void Game::place(Player &p, int edgeId) {
+    if (!isPlaceable(p, edgeId)) return;
+
+    board->findEdge(edgeId).placeRoad(p.getColour());
+    p.giveResources(Roadcost);
+
+}
+
+bool Game::canImprove(const Player &p, int vertexId) {
+    if (vertexId < 0 || vertexId >= NUM_VERTICES || !board->findVertex(vertexId).hasBuilding() 
+        || board->findVertex(vertexId).getBuilding().level == BuildingLevel::TOWER) {
+        
+        cout << "You cannot build here." << endl;
+        return false;
+    }
+
+    Inventory bc;
+    if (board->findVertex(vertexId).getBuilding().level == BuildingLevel::BASEMENT) bc = BuildingCosts.at(BuildingLevel::HOUSE);
+    else bc = BuildingCosts.at(BuildingLevel::TOWER); 
+
+    if (!p.canAfford(bc)) {
+        cout << "You do not have enough resources." << endl;
+        return false;
+    }
+    return true;
+
+}
+
+void Game::improve(Player &p, int vertexId) {
+    if (!canImprove(p, vertexId)) return;
+
+    Inventory bc;
+    if (board->findVertex(vertexId).getBuilding().level == BuildingLevel::BASEMENT) bc = BuildingCosts.at(BuildingLevel::HOUSE);
+    else bc = BuildingCosts.at(BuildingLevel::TOWER); 
+
+    p.giveResources(bc);
+    board->findVertex(vertexId).upgradeBuilding();
+    p.addPoints(1);
+    if (p.getPoints() >= 10) winner = static_cast<int>(p.getColour());
+
+}
+
+bool Game::canTrade(Player &p1, const string &colour, const string &give, const string &receive) {
+    auto r1 = parseResourceIdx(give);
+    auto r2 = parseResourceIdx(receive);
+    auto c = parseColour(colour);
+
+    if (!c || !r1 || !r2 || *c == p1.getColour()) {
+        cout << "Invalid command." << endl;
+        return false;
+    }
+
+    if (p1.getResources[*r1] == 0) {
+        cout << "You do not have enough resources." << endl;
+        return false;
+    }
+
+    Player &p2 = players[static_cast<int>(*c)];
+    if (p2.getResource[*r2] == 0) {
+        cout << "The other player don't have enough resources." << endl;
+        return false;
+    }
+
+    return true;
+}
+
+void Game::trade(Player &p1, const string &colour, const string &give, const string &receive) {
+    if (!canTrade(p1, colour, give, receive)) return;
+
+    auto r1 = parseResourceIdx(give);
+    auto r2 = parseResourceIdx(receive);
+    auto c = parseColour(colour);
+
+    cout << colourToString(p1.getColour()) << " offers " << colourToString(*c) << " one " << invnumToResource(*r1) << " for one " << invnumToResource(*r2) << "." << endl;
+    cout << "Does " << colourToString(*c) << " accept this offer?" << endl;
+    prompt();
+    if (readToken() != "yes") return;
+
+    Player &p2 = players[static_cast<int>(*c)];
+    p1.giveResources(singletonInv(*r1));
+    p2.giveResources(singletonInv(*r2));
+    p1.addResources(singletonInv(*r2));
+    p2.addResources(singletonInv(*r1));
+
+
+}
 
 

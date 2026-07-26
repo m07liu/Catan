@@ -15,6 +15,7 @@ export class Game {
     vector<Player> players;
     int curPlayer = 0;
     default_random_engine rng;
+    int winner = -1;
 
     void prompt() const;
     string readToken();
@@ -38,7 +39,8 @@ export class Game {
     void place(Player &p, int edgeId);
     bool canImprove(const Player &p, int vertexId);
     void improve(Player &p, int vertexId);
-    bool canTrade(Player &p1, Player &p2, const string &give, const string &receive); // <colour1> offers <colour2> one <resource1> for one <resource2>.
+    bool canTrade(Player &p1, const string &colour, const string &give, const string &receive); // <colour1> offers <colour2> one <resource1> for one <resource2>.
+    void trade(Player &p1, const string &colour, const string &give, const string &receive); 
 
     vector<int> housesOf(const Player &p) const; // vertex ids
     vector<int> roadsOf(const Player &p) const; // edge ids
