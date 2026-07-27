@@ -12,9 +12,10 @@ export class Player {
     bool computer = false;
     int points = 0;
     Inventory items;
-    unique_ptr<Dice> die = make_unique<LoadedDice>();
+    unique_ptr<Dice> dice[2];
+    unique_ptr<Dice> die;
   public:
-    Player(Colour c);
+    Player(Colour c, unsigned seed);
 
     Colour getColour() const;
     int getPoints() const;
@@ -24,8 +25,8 @@ export class Player {
     void addResources(const Inventory &i);
     void giveResources(const Inventory &i);
     bool canAfford(const Inventory &i) const;
-    void setDice(unique_ptr<Dice> d);
+    void setDice(int type); // Switches from fair to loaded and vice versa
 
-    int roll(default_random_engine &rng);
+    int roll();
 
 };

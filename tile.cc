@@ -20,6 +20,7 @@ export class Tile {
     TileType getType() const;
     const vector<int> &getAdjVertices() const;
     const vector<int> &getAdjEdges() const;
+    void changeTile(int val, TileType type);
     bool hasGeese() const;
     void setGeese();
     
