@@ -14,7 +14,7 @@ export class Dice {
 };
 
 export class FairDice : public Dice {
-    mt19937 rng;           // seeded once, at construction
+    default_random_engine rng;
   public:
     FairDice(unsigned seed);
     int roll() override;

@@ -12,11 +12,17 @@ int Dice::getType() const { return type; }
 
 FairDice::FairDice(unsigned seed) : Dice{0}, rng{seed} {}
 int FairDice::roll() {
-    uniform_int_distribution<int> d6{1, 6};
-    return d6(rng) + d6(rng);
+    vector<int> v1 = {1,2,3,4,5,6};
+    vector<int> v2 = {1,2,3,4,5,6};
+
+    shuffle(v1.begin(), v1.end(), rng);
+    shuffle(v2.begin(), v2.end(), rng);
+
+    return v1[0] + v2[0];
 }
 
 LoadedDice::LoadedDice() : Dice{1} {}
+
 int LoadedDice::roll() {
    int input = -1;
     cout << "Input a roll between 2 and 12:" << endl;

@@ -550,7 +550,7 @@ void Game::load(istream &in) {
 
     getline(in, line); 
     istringstream bs{line};
-    board->setSource(bs);
+    board->setStream(bs);
 
     int geeseLoc;
     in >> geeseLoc;
@@ -568,9 +568,13 @@ bool Game::run() {
         cout << colourToString(players[winner].getColour()) << " wins!" << endl;
         cout << "Would you like to play again?" << endl;
         prompt();
+        while (readToken() != "yes" && readToken() != "no") {
+            cout << "Invalid command." << endl;
+            prompt();
+        }
+        if (readToken() == "yes") return true;
+        else return false;
 
-        return readToken() == "yes";
-        
     } catch (EndOfInput &e) {
         save("backup.sv");
         return false;

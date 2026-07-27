@@ -29,8 +29,6 @@ export class Board {
   public:
     virtual void init() = 0; // For board setup
 
-    void display();
-    void save();
     map<Colour, Inventory> giveResources(int dieVal) const;
 
 
@@ -63,13 +61,16 @@ export class Board {
     void placeRoad(int id, Colour c);
 
     // save helpers used by Game
-    vector<int> roadsOwnedBy(Colour c) const;       // ascending edge ids
+    vector<int> roadsOwnedBy(Colour c) const;
     vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const;
+<<<<<<< HEAD
     
     virtual ~Board() = default;
+=======
+    int pointsOf(Colour c) const;
+>>>>>>> 16c9161dbe9749bb87c5e3e94513fb987a4a923a
 
     friend ostream &operator<<(ostream &out, const Board &b);
-
 };
 
 
@@ -82,15 +83,18 @@ export class RandomBoard : public Board {
 };
 
 export class FileBoard : public Board {
-    ifstream file;
+    istream src;
   public:
-    FileBoard(ifstream &file);
+
+    FileBoard(istream &src);
+    void setStream(istream &src);
     virtual void init() override;
+
 };
 
 // Concrete Creator
 export class BoardFactory {
   public:
-    unique_ptr<Board> createBoard(int type, unsigned seed, ifstream & file);
+    unique_ptr<Board> createBoard(int type, unsigned seed, istream & src);
 
 };

@@ -19,4 +19,4 @@ bool Edge::hasRoad() const { return road.owner != Colour::NONE; }
 
 string Edge::printRoad() const { return road.print(); }
 
-void Edge::placeRoad(Colour c) { road = Road{c}; }
+void Edge::placeRoad(Colour c) { road.owner = c; }

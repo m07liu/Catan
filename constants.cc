@@ -14,7 +14,7 @@ export const int NUM_EDGES = 72;
 export enum class Colour {BLUE, RED, ORANGE, YELLOW, NONE};
 export enum class TileType {BRICK, ENERGY, GLASS, HEAT, WIFI, PARK};
 export enum class ResourceType {BRICK, ENERGY, GLASS, HEAT, WIFI, NONE};
-export enum class BuildingLevel {BASEMENT, HOUSE, TOWER, NONE};
+export enum class BuildingLevel {NONE, BASEMENT, HOUSE, TOWER};
 
 export struct Inventory {
     int bricks = 0;

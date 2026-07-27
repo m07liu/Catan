@@ -51,6 +51,7 @@ const int TILE_LINE[NUM_TILES] = { 0,  4,  4, 8,  8,  8, 12, 12, 16, 16, 16,
                                   20, 20, 24, 24, 24, 28, 28, 32};
 
 void Board::initBoard() {
+    if (! vertices.empty() || ! edges.empty()) return; // Neighbors already set
     int numofvertices = 54;
     int numofedges = 72;
     // Create Vertices
@@ -149,18 +150,6 @@ void Board::initBoard() {
         else edges.emplace_back(Edge{i, vector<int>{52, 53}});
     }
 }
-
-void tileNeighbors(int id);
-
-void Board::addTile();
-
-void Board::addVertex();
-
-void Board::addEdge();
-
-void Board::display();
-
-void Board::save();
 
 int Board::pointsOf(Colour c) const {
     int points = 0;
@@ -289,7 +278,28 @@ void Board::build(int id, Colour c)     { vertices[id].build(c); }
 void Board::improve(int id)             { vertices[id].upgradeBuilding(); }
 void Board::placeRoad(int id, Colour c) { edges[id].placeRoad(c); }
 
-Board::~Board();
+vector<int> roadsOwnedBy(Colour c) const {
+    vector<int> ret {};
+    int id = 0;
+    for (auto iter : edges) {
+        if (iter.getOwner() == c) ret.emplaceback(id);
+        id++;
+    }
+    return ret;
+}
+
+vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const {
+    vector<pair<int, BuildingLevel>> ret {};
+    int id = 0;
+    for (auto iter : vertices) {
+        if (iter.getOwner() == c) ret.emplaceback({id, iter.getBuilding().level});
+    }
+    return ret;
+}
+
+int pointsOf(Colour c) const {
+
+}
 
 //------------------------------Concrete Products-------------------------------
 
@@ -327,7 +337,7 @@ void RandomBoard::init() {
     }
 }
 
-FileBoard::FileBoard(ifstream &file) : file{file} {}
+FileBoard::FileBoard(istream &src) : src{src} {}
 
 void FileBoard::init() {
     initBoard();
@@ -335,27 +345,32 @@ void FileBoard::init() {
     int input; 
     bool dice = false;
     int id = 0;
-    while (file >> input) {
+    while (src >> input) {
         if (dice && 2 <= input && input <= 12) { // Input is dice number for the tile
             tiles.emplace_back(Tile{id, input, tt, TILE_VERTICES[id], TILE_EDGES[id]});
             id++;
         } else if (! dice && 0 <= input && input <= 5) { // Input is tile type
             tt = static_cast<TileType>(input); // Convert input to TileType
         } else { // Invalid input
-            cout << "Invalid Input! Please re-enter a valid number:" << endl;
+            cout << "Invalid input detected." << endl;
             continue;
         }
         dice = ! dice;
     }
 }
 
-unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, ifstream &file) {
+void setStream(istream &src) { 
+    this->src = src; 
+    init();
+}
+
+unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, istream &src) {
     if (type == 0) {
         auto ret = make_unique<Board>(seed);
         ret->init();
         return ret;
     }
-    auto ret = make_unique<Board>(file);
+    auto ret = make_unique<Board>(src);
     ret->init();
     return ret;
 }
