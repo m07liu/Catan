@@ -173,8 +173,7 @@ void Game::duringTurn(Player &p) {
             string toWhom = readToken();
             string give = readToken();
             string receive = readToken();
-            // ***************** need to turn toWhom from string to color to player ****************//
-            tryTrade(p, toWhom, give, take);
+            trade(p, toWhom, give, take);
 
         } else if (cmd == "next") {
             return;
@@ -203,6 +202,23 @@ int pickRandomResource(const Inventory &inventory, default_random_engine &rng) {
     }
 
     return 4;
+}
+
+
+// helper function
+bool Game::canSteal(auto c, vector<Colour> &pv) {
+    if (!c) {
+        cout << "Invalid command." << endl;
+        return false;
+    }
+
+    for (int i = 0; i < pv.size(); i++) {
+        if (pv[i] == *c) return true;
+    }
+
+    cout << "Invalid command." << endl;
+    return false;
+
 }
 
 void Game::moveGeese(Player &p) {
@@ -274,15 +290,16 @@ void Game::moveGeese(Player &p) {
     cout << "." << endl;
 
     // Choose a builder to steal from.
-    Colour target;
+    auto target;
     while (true) {
         cout << "Choose a builder to steal from." << endl;
         prompt();
-        // check string
-        // string to colour
-
+        target = parseColour(readToken());
+        if (!canSteal(target, pv)) continue;
+        break;
     }
-    Player &victim{target};
+
+    Player &victim{*target};
     int pick = pickRandomResource(victim.getResources(), rng);
     victim.giveResources(singletonInv(pick));
     player.addResources(singletonInv(pick));
@@ -444,6 +461,118 @@ void Game::trade(Player &p1, const string &colour, const string &give, const str
     p1.addResources(singletonInv(*r2));
     p2.addResources(singletonInv(*r1));
 
+
+}
+
+string Game::savePlayer(int i) const {
+    ostringstream ss;
+    for (int j = 0; j < 5; ++j) {
+        if (j != 0) ss << " ";
+        ss << players[i].getResources()[j];
+    }
+    ss << "r";
+    for (int id: board->roadsOwnedBy(static_cast<Colour>(i))) {
+        ss << " " << id;
+    }
+    ss << " h";
+    for (pair<int, BuildingLevel> pr: board->buildingsOwnedBy(static_cast<Colour>(i))) {
+        ss << " " << pr.first << " " << buildingLevelToChar(pr.second);
+    }
+    return ss.str();
+
+}
+string Game::saveBoard() const {
+    ostringstream ss;
+    for (int i = 0; i < NUM_TILES; ++i) {
+        const Tile &tile = board->findTile(i);
+        if (i != 0) ss << " ";
+        ss << static_cast<int>(tile.getType()) << " " << tile.getVal();
+    } 
+
+    return ss.str();
+
+}
+
+void Game::save(const string &file) const {
+    ofstream fout{file};
+    fout << (curPlayer + 1) % 4 << endl;
+    for (int i = 0; i < 4; ++i) {
+        fout << savePlayer(i) << endl;
+    }
+    fout << saveBoard() << endl;
+    fout << board->getGeeseTile() << endl;
+
+}
+
+void Game::load(istream &in) {
+    loaded = true;
+    in >> playerTurn;
+    in.ignore();
+
+    string line;
+    for (int i = 0; i < 4; ++i) {
+        getline(in, line); // player lines
+        istringstream ss{line};
+
+        Inventory inv;
+        for (int i = 0; i < 5; ++i) {
+            int num;
+            ss >> num;
+            inv[i] += num;
+        }
+        players[i].addResources(inv);
+
+        string road;
+        ss >> road; "r"
+
+        int edgeId;
+        while (ss >> edgeId && edgeId != "h") {
+            board->placeRoad(edgeId, static_cast<Colour>(i));
+        }
+
+        int vertexId;
+        char level;
+        while (ss >> vertexId >> level) {
+            board->build(vertexId, static_cast<Colour>(i));
+            players[i].addPoints(1);
+            if (level == 'H') {
+                board.improve(vertexId);
+                players[i].addPoints(1);
+            }
+            if (level == 'T') {
+                board.improve(vertexId);
+                board.improve(vertexId);
+                players[i].addPoints(2);
+            }
+        }
+
+    }
+
+    getline(in, line); // board line
+
+    int geeseLoc;
+    in >> geeseLoc;
+    board->moveGeese(geese);
+
+}
+
+bool Game::run() {
+    try {
+        if (!loaded) setup();
+        while (winner == -1) {
+            playTurn();
+            playerTurn = (playerTurn + 1) % 4;
+        }
+        cout << colourToString(players[winner].getColour()) << " wins!" << endl;
+        cout << "Would you like to play again?" << endl;
+        prompt();
+
+        return readToken() == "yes";
+        
+    } catch (EndOfInput &e) {
+        save("backup.sv");
+        return false;
+    }
 
 }
 

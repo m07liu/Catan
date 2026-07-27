@@ -27,6 +27,5 @@ export class Player {
     void setDice(unique_ptr<Dice> d);
 
     int roll(default_random_engine &rng);
-    virtual void save();
-    virtual void load();
+
 };

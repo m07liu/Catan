@@ -15,6 +15,7 @@ export class Game {
     vector<Player> players;
     int curPlayer = 0;
     int winner = -1;
+    bool loaded = false;
 
     void prompt() const;
     string readToken();
@@ -40,17 +41,20 @@ export class Game {
     void improve(Player &p, int vertexId);
     bool canTrade(Player &p1, const string &colour, const string &give, const string &receive); // <colour1> offers <colour2> one <resource1> for one <resource2>.
     void trade(Player &p1, const string &colour, const string &give, const string &receive); 
+    bool canSteal(auto c, vector<Colour> &pv);
 
     vector<int> housesOf(const Player &p) const; // vertex ids
     vector<int> roadsOf(const Player &p) const; // edge ids
     Player &colourToPlayer(Colour c) const;
     Colour playerToColour(const Player &p) const;
+    string savePlayer(int i) const;
+    string saveBoard() const;
 
     
   public:
-    Game(int type, unsigned seed, const string & file); // 0: random board, 1: file board
-    void run();
-    void display();
+    Game(unique_ptr<Board> board, unsigned seed);
+    bool run();
     virtual save(const string &file) const;
     virtual load(istream &in);
+    
 };
