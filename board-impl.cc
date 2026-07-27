@@ -150,18 +150,6 @@ void Board::initBoard() {
     }
 }
 
-void tileNeighbors(int id);
-
-void Board::addTile();
-
-void Board::addVertex();
-
-void Board::addEdge();
-
-void Board::display();
-
-void Board::save();
-
 int Board::pointsOf(Colour c) const {
     int points = 0;
     for (const Vertex &v : vertices) {
@@ -289,7 +277,28 @@ void Board::build(int id, Colour c)     { vertices[id].build(c); }
 void Board::improve(int id)             { vertices[id].upgradeBuilding(); }
 void Board::placeRoad(int id, Colour c) { edges[id].placeRoad(c); }
 
-Board::~Board();
+vector<int> roadsOwnedBy(Colour c) const {
+    vector<int> ret {};
+    int id = 0;
+    for (auto iter : edges) {
+        if (iter.getOwner() == c) ret.emplaceback(id);
+        id++;
+    }
+    return ret;
+}
+
+vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const {
+    vector<pair<int, BuildingLevel>> ret {};
+    int id = 0;
+    for (auto iter : vertices) {
+        if (iter.getOwner() == c) ret.emplaceback({id, iter.getBuilding().level});
+    }
+    return ret;
+}
+
+int pointsOf(Colour c) const {
+    
+}
 
 //------------------------------Concrete Products-------------------------------
 

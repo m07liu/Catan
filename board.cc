@@ -29,8 +29,6 @@ export class Board {
   public:
     virtual void init() = 0; // For board setup
 
-    void display();
-    void save();
     map<Colour, Inventory> giveResources(int dieVal) const;
     int pointsOf(Colour c) const;
 
@@ -64,14 +62,11 @@ export class Board {
     void placeRoad(int id, Colour c);
 
     // save helpers used by Game
-    vector<int> roadsOwnedBy(Colour c) const;       // ascending edge ids
+    vector<int> roadsOwnedBy(Colour c) const;
     vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const;
     int pointsOf(Colour c) const;
-    
-    virtual ~Board() = default;
 
     friend ostream &operator<<(ostream &out, const Board &b);
-
 };
 
 
