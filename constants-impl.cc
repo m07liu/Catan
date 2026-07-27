@@ -1,6 +1,7 @@
 module constants;
 
 import <string>;
+import <optional>;
 using namespace std;
 
 Inventory &Inventory::operator+=(const Inventory &other) {
@@ -64,10 +65,10 @@ string colourToString(Colour c) {
 }
 
 char colourToChar(Colour c) {
-    if (c == Colour::BLUE) return "B";
-    else if (c == Colour::RED) return "R";
-    else if (c == Colour::ORANGE) return "O";
-    else if (c == Colour::YELLOW) return "Y";
+    if (c == Colour::BLUE) return 'B';
+    else if (c == Colour::RED) return 'R';
+    else if (c == Colour::ORANGE) return 'O';
+    else if (c == Colour::YELLOW) return 'Y';
     return ' ';
 }
 
@@ -95,7 +96,7 @@ char buildingLevelToChar(BuildingLevel level) {
     return ' ';
 }
 
-string invnumToResource(int i) const {
+string invnumToResource(int i) {
     if (i == 0) return "BRICK";
     else if (i == 1) return "ENERGY";
     else if (i == 2) return "GLASS";
@@ -106,13 +107,13 @@ string invnumToResource(int i) const {
 
 Inventory singletonInv(int i) {
     Inventory inv;
-    v[i] = 1;
+    inv[i] = 1;
     return inv;
 }
 
 
 
-int Building::yield() {
+int Building::yield() const {
     if (level == BuildingLevel::BASEMENT) return 1;
     else if (level == BuildingLevel::HOUSE) return 2;
     else if (level == BuildingLevel::TOWER) return 3;

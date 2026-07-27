@@ -1,6 +1,6 @@
 module dice;
 
-import <random>
+import <random>;
 import <string>;
 import <limits>;
 import <iostream>;

@@ -2,6 +2,7 @@ export module constants;
 
 import <map>;
 import <string>;
+import <optional>;
 
 using namespace std;
 
@@ -58,10 +59,10 @@ export string tileTypeToString(TileType t);
 export string buildingLevelToString(BuildingLevel level);
 export char buildingLevelToChar(BuildingLevel level);
 export char colourToChar(Colour c);
-export string invnumToResource(int i) const;
+export string invnumToResource(int i);
 export Inventory singletonInv(int i);
 
 export optional<Colour> parseColour(const string &s);
-export optional<int> parseResource(const string &s);
+export optional<int> parseResourceIdx(const string &s);
 
 

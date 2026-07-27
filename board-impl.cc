@@ -196,7 +196,7 @@ const Tile &Board::findTile(int id) const     { return tiles[id]; }
 const Vertex &Board::findVertex(int id) const { return vertices[id]; }
 const Edge &Board::findEdge(int id) const     { return edges[id]; }
  
-vector<int> Board::findTiles(int val) const {
+const vector<int> Board::findTiles(int val) const {
     vector<int> found;
     for (const Tile &t : tiles) {
         if (t.getVal() == val && t.getType() != TileType::PARK) {
