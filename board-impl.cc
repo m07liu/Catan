@@ -51,6 +51,7 @@ const int TILE_LINE[NUM_TILES] = { 0,  4,  4, 8,  8,  8, 12, 12, 16, 16, 16,
                                   20, 20, 24, 24, 24, 28, 28, 32};
 
 void Board::initBoard() {
+    if (! vertices.empty() || ! edges.empty()) return; // Neighbors already set
     int numofvertices = 54;
     int numofedges = 72;
     // Create Vertices
@@ -356,6 +357,11 @@ void FileBoard::init() {
         }
         dice = ! dice;
     }
+}
+
+void FileBoard(istream &src) { 
+    this->src = src; 
+    init();
 }
 
 unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, istream &src) {

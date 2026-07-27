@@ -82,6 +82,7 @@ export class FileBoard : public Board {
     istream src;
   public:
     FileBoard(istream &src);
+    void setStream(istream &src);
     virtual init() override;
 };
 
