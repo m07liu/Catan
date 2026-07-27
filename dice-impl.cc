@@ -22,6 +22,7 @@ int FairDice::roll() {
 }
 
 LoadedDice::LoadedDice() : Dice{1} {}
+
 int LoadedDice::roll() {
    int input = -1;
     cout << "Input a roll between 2 and 12:" << endl;

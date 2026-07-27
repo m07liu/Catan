@@ -79,15 +79,15 @@ export class RandomBoard : public Board {
 };
 
 export class FileBoard : public Board {
-    ifstream file;
+    istream src;
   public:
-    FileBoard(ifstream &file);
+    FileBoard(istream &src);
     virtual init() override;
 };
 
 // Concrete Creator
 export class BoardFactory {
   public:
-    unique_ptr<Board> createBoard(int type, unsigned seed, ifstream & file);
+    unique_ptr<Board> createBoard(int type, unsigned seed, istream & src);
 
 };

@@ -297,7 +297,7 @@ vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const {
 }
 
 int pointsOf(Colour c) const {
-    
+
 }
 
 //------------------------------Concrete Products-------------------------------
@@ -336,7 +336,7 @@ void RandomBoard::init() {
     }
 }
 
-FileBoard::FileBoard(ifstream &file) : file{file} {}
+FileBoard::FileBoard(istream &src) : src{src} {}
 
 void FileBoard::init() {
     initBoard();
@@ -344,27 +344,27 @@ void FileBoard::init() {
     int input; 
     bool dice = false;
     int id = 0;
-    while (file >> input) {
+    while (src >> input) {
         if (dice && 2 <= input && input <= 12) { // Input is dice number for the tile
             tiles.emplace_back(Tile{id, input, tt, TILE_VERTICES[id], TILE_EDGES[id]});
             id++;
         } else if (! dice && 0 <= input && input <= 5) { // Input is tile type
             tt = static_cast<TileType>(input); // Convert input to TileType
         } else { // Invalid input
-            cout << "Invalid Input! Please re-enter a valid number:" << endl;
+            cout << "Invalid input detected." << endl;
             continue;
         }
         dice = ! dice;
     }
 }
 
-unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, ifstream &file) {
+unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, istream &src) {
     if (type == 0) {
         auto ret = make_unique<Board>(seed);
         ret->init();
         return ret;
     }
-    auto ret = make_unique<Board>(file);
+    auto ret = make_unique<Board>(src);
     ret->init();
     return ret;
 }
