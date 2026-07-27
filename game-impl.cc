@@ -55,7 +55,7 @@ void Game::printAll() const {
 
 void Game::printBuildings(const Player &p) const {
     cout << colourToString(p.getColour()) << " has built:\n";
-    for (int id: houseOf(p)) {
+    for (int id: housesOf(p)) {
         cout << id << " " << buildingLevelToChar(board->findVertex(id).getBuilding().level) << "\n";
     }
 }
@@ -123,16 +123,16 @@ void Game::playTurn() {
 
 void Game::beginTurn(Player &p) {
     cout << *board;
-    cout << "Builder " << colourToString(p.getColour(c)) << "'s turn." << endl;
+    cout << "Builder " << colourToString(p.getColour()) << "'s turn." << endl;
     printPlayer(p);
 
     while (true) {
         prompt();
         string cmd = readToken();
-        if (cmd) == "load") { p.setDice(make_unique<LoadedDice>()); }
+        if (cmd == "load") { p.setDice(make_unique<LoadedDice>()); }
         else if (cmd == "fair") { p.setDice(make_unique<FairDice>()); }
         else if (cmd == "roll") {
-            processRoll(p, p.roll());
+            processRoll(p, p.roll(rng));
             return;
         }
         else {
@@ -302,8 +302,8 @@ void Game::moveGeese(Player &p) {
     Player &victim{*target};
     int pick = pickRandomResource(victim.getResources(), rng);
     victim.giveResources(singletonInv(pick));
-    player.addResources(singletonInv(pick));
-    cout << "Builder " << colourToString(p.getColour()) << " steals " << numToResource(idx) << " from builder " << colourToString(target) << "." << endl;
+    p.addResources(singletonInv(pick));
+    cout << "Builder " << colourToString(p.getColour()) << " steals " << invnumToResource(idx) << " from builder " << colourToString(target) << "." << endl;
 
 }
 
@@ -311,7 +311,7 @@ void Game::distributeResources(int rollVal) {
     const vector<Tile> &tiles = board->findTiles(rollVal);
     vector<Inventory> distribute(4);
     for (const Tile &tile: tiles) {
-        if (tile.getType() == TileType::PARK || tile.hasGeese()) continue;
+        if (tile.getType() == TileType::PARK || tile.hasGeese()) return;
         for (int id: tile.getAdjVertices()) {
             const Vertex &v = board->getVertex(id);
             if (v.hasBuilding()) {
@@ -334,7 +334,7 @@ void Game::distributeResources(int rollVal) {
     for (Colour c : gained) {
         cout << "Builder " << colourToString(c) << " gained:\n";
         for (int i = 0; i < 5; ++i) {
-            int num = distribute[static_cast<int>(c)][i]
+            int num = distribute[static_cast<int>(c)][i];
             if (num > 0) {
                 cout << num << " " << invnumToResource(i) << "\n";
             }
@@ -429,13 +429,13 @@ bool Game::canTrade(Player &p1, const string &colour, const string &give, const 
         return false;
     }
 
-    if (p1.getResources[*r1] == 0) {
+    if (p1.getResources()[*r1] == 0) {
         cout << "You do not have enough resources." << endl;
         return false;
     }
 
     Player &p2 = players[static_cast<int>(*c)];
-    if (p2.getResource[*r2] == 0) {
+    if (p2.getResource()[*r2] == 0) {
         cout << "The other player don't have enough resources." << endl;
         return false;
     }
@@ -523,7 +523,7 @@ void Game::load(istream &in) {
         players[i].addResources(inv);
 
         string road;
-        ss >> road; "r"
+        ss >> road; // "r"
 
         int edgeId;
         while (ss >> edgeId && edgeId != "h") {
@@ -536,23 +536,25 @@ void Game::load(istream &in) {
             board->build(vertexId, static_cast<Colour>(i));
             players[i].addPoints(1);
             if (level == 'H') {
-                board.improve(vertexId);
+                board->improve(vertexId);
                 players[i].addPoints(1);
             }
             if (level == 'T') {
-                board.improve(vertexId);
-                board.improve(vertexId);
+                board->improve(vertexId);
+                board->improve(vertexId);
                 players[i].addPoints(2);
             }
         }
 
     }
 
-    getline(in, line); // board line
+    getline(in, line); 
+    istringstream bs{line};
+    board->setStream(bs);
 
     int geeseLoc;
     in >> geeseLoc;
-    board->moveGeese(geese);
+    board->moveGeese(geeseLoc);
 
 }
 

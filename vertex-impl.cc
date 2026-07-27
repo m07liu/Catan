@@ -1,4 +1,4 @@
-module vertex
+module vertex;
 
 import <vector>;
 import constants;

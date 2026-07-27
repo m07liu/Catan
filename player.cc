@@ -1,7 +1,7 @@
 export module player;
 
 import <random>;
-import <memory>
+import <memory>;
 import dice;
 import constants;
 

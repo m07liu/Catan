@@ -26,5 +26,5 @@ export class Vertex {
     
     // bool isBuildableBy(Colour c);
 
-}
+};
 

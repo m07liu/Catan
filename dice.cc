@@ -1,6 +1,6 @@
 export module dice;
 
-import <random>
+import <random>;
 
 using namespace std;
 

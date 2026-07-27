@@ -4,11 +4,14 @@ import <vector>;
 import <string>;
 import <random>;
 import <memory>;
+import <optional>;
 import board;
 import constants;
 import player;
 
 using namespace std;
+
+export struct EndOfInput {};
 
 export class Game {
     unique_ptr<Board> board;
@@ -16,6 +19,7 @@ export class Game {
     int curPlayer = 0;
     int winner = -1;
     bool loaded = false;
+    default_random_engine rng; 
 
     void prompt() const;
     string readToken();
@@ -53,8 +57,9 @@ export class Game {
     
   public:
     Game(unique_ptr<Board> board, unsigned seed);
+    Game(int type, unsigned seed, const string & file);
     bool run();
-    virtual save(const string &file) const;
-    virtual load(istream &in);
+    void save(const string &file) const;
+    void load(istream &in);
     
 };
