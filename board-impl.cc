@@ -359,7 +359,7 @@ void FileBoard::init() {
     }
 }
 
-void FileBoard(istream &src) { 
+void setStream(istream &src) { 
     this->src = src; 
     init();
 }
