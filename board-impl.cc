@@ -49,6 +49,214 @@ const int TILE_COL[NUM_TILES]  = {20, 10, 30, 0, 20, 40, 10, 30, 0, 20, 40,
                                   10, 30, 0, 20, 40, 10, 30, 20};
 const int TILE_LINE[NUM_TILES] = { 0,  4,  4, 8,  8,  8, 12, 12, 16, 16, 16,
                                   20, 20, 24, 24, 24, 28, 28, 32};
+const int CANVAS_LINES = 41, CANVAS_COLS = 54;
+
+//Helpers for displaying board
+ 
+static char colourLetter(Colour colour) {
+    switch (colour) {
+        case Colour::BLUE:
+            return 'B';
+
+        case Colour::RED:
+            return 'R';
+
+        case Colour::ORANGE:
+            return 'O';
+
+        case Colour::YELLOW:
+            return 'Y';
+    }
+
+    return '?';
+}
+
+static char buildingLetter(BuildingLevel level) {
+    switch (level) {
+        case BuildingLevel::BASEMENT:
+            return 'B';
+
+        case BuildingLevel::HOUSE:
+            return 'H';
+
+        case BuildingLevel::TOWER:
+            return 'T';
+    }
+
+    return '?';
+}
+
+static string tileTypeName(TileType type) {
+    switch (type) {
+        case TileType::BRICK:
+            return "BRICK";
+
+        case TileType::ENERGY:
+            return "ENERGY";
+
+        case TileType::GLASS:
+            return "GLASS";
+
+        case TileType::HEAT:
+            return "HEAT";
+
+        case TileType::WIFI:
+            return "WIFI";
+
+        case TileType::PARK:
+            return "PARK";
+    }
+
+    return "";
+}
+
+//Make int take up at least 2 chars in length
+static string pad2(int n) {
+    string s = to_string(n);
+    return s.size() >= 2 ? s : " " + s;
+}
+ 
+static void put(vector<string> &drawing, int line, int col, const string &s) {
+    for (int i = 0; i < s.size(); i++) drawing[line][col + i] = s[i];
+}
+ 
+static void putCentred(vector<string> &drawing, int line, int lo, int hi, const string &s) {
+    int width = hi - lo + 1;
+    put(drawing, line, lo + (width - static_cast<int>(s.size())) / 2, s);
+}
+ 
+static void putLeftVertical(vector<string> &drawing,
+                     int line,
+                     int col,
+                     const string &label) {
+    drawing[line][col] = '|';
+    put(drawing, line + 1, col, label);
+    drawing[line + 2][col] = '|';
+}
+
+static void putRightVertical(vector<string> &drawing,
+                      int line,
+                      int col,
+                      const string &label) {
+    drawing[line][col] = '|';
+    put(drawing, line + 1, col - 1, label);
+    drawing[line + 2][col] = '|';
+}
+
+static string vertexLabel(const Vertex &vertex, int id) {
+    if (!vertex.hasBuilding()) {
+        return "|" + pad2(id) + "|";
+    }
+
+    string label{"|  |"};
+    label[1] = colourLetter(vertex.getOwner());
+    label[2] = buildingLetter(vertex.getBuilding().level);
+
+    return label;
+}
+
+static string edgeLabel(const Edge &edge, int id) {
+    if (!edge.hasRoad()) {
+        return pad2(id);
+    }
+
+    string label{"  "};
+    label[0] = colourLetter(edge.getOwner());
+    label[1] = 'R';
+
+    return label;
+}
+
+ostream &operator<<(ostream &out, const Board &board) {
+    vector<string> drawing(
+        CANVAS_LINES,
+        string(CANVAS_COLS, ' ')
+    );
+
+    for (int tileId = 0; tileId < NUM_TILES; tileId++) {
+        const Tile &tile = board.tiles[tileId];
+
+        const vector<int> &vertexIds = TILE_VERTICES[tileId];
+        const vector<int> &edgeIds = TILE_EDGES[tileId];
+
+        int line = TILE_LINE[tileId];
+        int col = TILE_COL[tileId];
+
+
+        // The 6 Vertices
+        put(drawing, line, col,
+            vertexLabel(board.vertices[vertexIds[TL]], vertexIds[TL]));
+
+        put(drawing, line, col + 10,
+            vertexLabel(board.vertices[vertexIds[TR]], vertexIds[TR]));
+
+        put(drawing, line + 4, col,
+            vertexLabel(board.vertices[vertexIds[ML]], vertexIds[ML]));
+
+        put(drawing, line + 4, col + 10,
+            vertexLabel(board.vertices[vertexIds[MR]], vertexIds[MR]));
+
+        put(drawing, line + 8, col,
+            vertexLabel(board.vertices[vertexIds[BL]], vertexIds[BL]));
+
+        put(drawing, line + 8, col + 10,
+            vertexLabel(board.vertices[vertexIds[BR]], vertexIds[BR]));
+
+
+        // Top and bottom horizontal edges
+        put(drawing, line, col + 4,
+            "--" + edgeLabel(board.edges[edgeIds[E_TOP]], edgeIds[E_TOP] ) +"--"
+        );
+
+        put(drawing, line + 8, col + 4,
+            "--" + edgeLabel(board.edges[edgeIds[E_BOT]], edgeIds[E_BOT]) + "--"
+        );
+
+
+        // Upper-left and upper-right vertical edges
+        putLeftVertical(drawing, line + 1, col,
+                        edgeLabel(board.edges[edgeIds[E_UL]], edgeIds[E_UL]));
+
+        putRightVertical(drawing, line + 1, col + 13,
+                         edgeLabel(board.edges[edgeIds[E_UR]], edgeIds[E_UR]));
+
+        // Lower-left and lower-right vertical edges
+        putLeftVertical(drawing, line + 5, col, 
+                        edgeLabel(board.edges[edgeIds[E_LL]], edgeIds[E_LL]));
+
+        putRightVertical(drawing, line + 5, col + 13,
+                         edgeLabel(board.edges[edgeIds[E_LR]], edgeIds[E_LR]));
+
+        // Tile ID
+        putCentred(drawing, line + 2, col + 2, col + 11, to_string(tileId));
+
+        // Tile resource type
+        putCentred(drawing, line + 3, col + 1, col + 12,
+                   tileTypeName(tile.getType()));
+
+
+        // Tile values, PARK does not display its value
+        if (tile.getType() != TileType::PARK) {
+            putCentred(drawing, line + 4, col + 4, col + 9,
+            to_string(tile.getVal()));
+        }
+
+        if (tileId == board.geeseTile) {
+            putCentred(drawing, line + 5, col + 1, col + 12, "GEESE");
+        }
+    }
+
+    // Print each canvas line without unnecessary spaces at the right side
+    for (string row : drawing) {
+        while (!row.empty() && row.back() == ' ') {
+            row.pop_back();
+        }
+
+        out << row << '\n';
+    }
+
+    return out;
+}
 
 void Board::initBoard() {
     if (! vertices.empty() || ! edges.empty()) return; // Neighbors already set
