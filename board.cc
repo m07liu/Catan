@@ -36,7 +36,7 @@ export class Board {
     // const Tile &getTile(int id) const;
     // const Vertex &getVertex(int id) const;
     // const Edge &getEdge(int id) const;
-    // const vector<Tile> &findTiles(int val) const; //find list of tiles with value val
+    // vector<Tile> findTiles(int val) const; //find list of tiles with value val
 
     bool isVertex(int id) const;
     bool isEdge(int id) const;

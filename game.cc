@@ -45,16 +45,13 @@ export class Game {
     void improve(Player &p, int vertexId);
     bool canTrade(Player &p1, const string &colour, const string &give, const string &receive); // <colour1> offers <colour2> one <resource1> for one <resource2>.
     void trade(Player &p1, const string &colour, const string &give, const string &receive); 
-    bool canSteal(auto c, vector<Colour> &pv);
+    bool canSteal(const optional<Colour> &c, vector<Colour> &pv);
 
-    Player &colourToPlayer(Colour c) const;
-    Colour playerToColour(const Player &p) const;
     string savePlayer(int i) const;
     string saveBoard() const;
 
     
   public:
-    Game(unique_ptr<Board> board, unsigned seed);
     Game(int type, unsigned seed, const string & file);
     bool run();
     void save(const string &file) const;

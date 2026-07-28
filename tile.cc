@@ -22,7 +22,7 @@ export class Tile {
     const vector<int> &getAdjEdges() const;
     void changeTile(int val, TileType type);
     bool hasGeese() const;
-    void setGeese();
+    void setGeese(bool b);
     
 };
 

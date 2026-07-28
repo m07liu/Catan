@@ -18,4 +18,4 @@ void Tile::changeTile(int val, TileType type) {
     this->type = type;
 }
 bool Tile::hasGeese() const { return geese; }
-void Tile::setGeese() { geese = ! geese; }
+void Tile::setGeese(bool b) { geese = b; }

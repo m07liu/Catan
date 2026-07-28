@@ -55,8 +55,8 @@ void Game::printAll() const {
 
 void Game::printBuildings(const Player &p) const {
     cout << colourToString(p.getColour()) << " has built:\n";
-    for (pair<int, BuildingLevel> pr: buildingsOwnedBy(p.getColour())) {
-        cout << pr.first << " " << board->buildingLevelToChar(pr.second) << "\n";
+    for (pair<int, BuildingLevel> pr: board->buildingsOwnedBy(p.getColour())) {
+        cout << pr.first << " " << buildingLevelToChar(pr.second) << "\n";
     }
 }
 
@@ -208,7 +208,7 @@ int pickRandomResource(const Inventory &inventory, default_random_engine &rng) {
 
 
 // helper function
-bool Game::canSteal(auto c, vector<Colour> &pv) {
+bool Game::canSteal(const optional<Colour> &c, vector<Colour> &pv) {
     if (!c) {
         cout << "Invalid command." << endl;
         return false;
