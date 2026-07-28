@@ -30,7 +30,7 @@ int LoadedDice::roll() {
     cout << "Input a roll between 2 and 12:" << endl;
 
     while (!(cin >> input) || input < 2 || input > 12) {
-        if (cin.eof()) return -1;          // let the caller handle end-of-file
+        if (cin.eof()) throw EndOfInput{};          // let the caller handle end-of-file
         cout << "Invalid roll." << endl;
         cin.clear();                        
         //for multi character wrong input we only want one invalid output line

@@ -89,6 +89,7 @@ void Game::setup() {
             prompt();
 
             try { n = stoi(readToken()); } 
+            catch (EndOfInput &) { throw; } 
             catch (...) { cout << "You cannot build here." << endl; continue; }
 
             if (!board->canBuild(n, c, true)) {
@@ -128,7 +129,7 @@ void Game::beginTurn(Player &p) {
 
     while (true) {
         prompt();
-        string cmd = readToken();
+        string cmd = toLower(readToken());
         if (cmd == "load") { p.setDice(1); }
         else if (cmd == "fair") { p.setDice(0); }
         else if (cmd == "roll") {
@@ -143,7 +144,7 @@ void Game::beginTurn(Player &p) {
 void Game::duringTurn(Player &p) {
     while (true) {
         prompt();
-        string cmd = readToken();
+        string cmd = toLower(readToken());
 
         if (cmd == "board") {
             cout << *board;
@@ -184,6 +185,7 @@ void Game::duringTurn(Player &p) {
         } else {
             cout << "Invalid command." << endl;
         }
+        if (winner != -1) return;
     }
 }
 
@@ -254,6 +256,7 @@ void Game::moveGeese(Player &p) {
         prompt();
 
         try { n = stoi(readToken()); } 
+        catch (EndOfInput &) { throw; } 
         catch (...) { continue; }
 
         if (n < 0 || n >= NUM_TILES || n == board->getGeeseTile()) continue;
@@ -321,9 +324,9 @@ void Game::distributeResources(int rollVal) {
         }
     }
 
-    vector<Colour> gained;
+    vector<int> gained;
     for (int i = 0; i < 4; ++i) {
-        if (!distribute[i].isEmpty()) gained.push_back(static_cast<Colour>(i));
+        if (!distribute[i].isEmpty()) gained.push_back(i);
     }
 
     if (gained.empty()) {
@@ -331,10 +334,11 @@ void Game::distributeResources(int rollVal) {
         return;
     }
 
-    for (Colour c : gained) {
-        cout << "Builder " << colourToString(c) << " gained:\n";
+    for (int n : gained) {
+        players[n].addResources(distribute[n]);
+        cout << "Builder " << colourToString(static_cast<Colour>(n)) << " gained:\n";
         for (int i = 0; i < 5; ++i) {
-            int num = distribute[static_cast<int>(c)][i];
+            int num = distribute[n][i];
             if (num > 0) {
                 cout << num << " " << invnumToResource(i) << "\n";
             }
@@ -386,9 +390,7 @@ void Game::place(Player &p, int edgeId) {
 }
 
 bool Game::canImprove(const Player &p, int vertexId) {
-    if (vertexId < 0 || vertexId >= NUM_VERTICES || !board->findVertex(vertexId).hasBuilding() 
-        || board->findVertex(vertexId).getBuilding().level == BuildingLevel::TOWER) {
-        
+    if (!board->canUpgrade(vertexId, p.getColour())) {
         cout << "You cannot build here." << endl;
         return false;
     }
@@ -436,7 +438,7 @@ bool Game::canTrade(Player &p1, const string &colour, const string &give, const 
 
     Player &p2 = players[static_cast<int>(*c)];
     if (p2.getResources()[*r2] == 0) {
-        cout << "The other player don't have enough resources." << endl;
+        cout << "The other player doesn't have enough resources." << endl;
         return false;
     }
 
@@ -451,9 +453,16 @@ void Game::trade(Player &p1, const string &colour, const string &give, const str
     auto c = parseColour(colour);
 
     cout << colourToString(p1.getColour()) << " offers " << colourToString(*c) << " one " << invnumToResource(*r1) << " for one " << invnumToResource(*r2) << "." << endl;
-    cout << "Does " << colourToString(*c) << " accept this offer?" << endl;
-    prompt();
-    if (readToken() != "yes") return;
+
+    while (true) {
+        cout << "Does " << colourToString(*c) << " accept this offer?" << endl;
+        prompt();
+        string str = toLower(readToken());
+        if (str == "yes") break;
+        if (str == "no") return;
+        cout << "Invalid command." << endl;
+        
+    }
 
     Player &p2 = players[static_cast<int>(*c)];
     p1.giveResources(singletonInv(*r1));
@@ -569,7 +578,7 @@ bool Game::run() {
         while (true){
             cout << "Would you like to play again?" << endl;
             prompt();
-            string str = readToken();
+            string str = toLower(readToken());
             if (str == "yes") return true;
             else if (str == "no") return false;
             
@@ -579,6 +588,7 @@ bool Game::run() {
 
     } catch (EndOfInput &e) {
         save("backup.sv");
+        return false;
     }
     
     return false;

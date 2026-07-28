@@ -11,7 +11,6 @@ import player;
 
 using namespace std;
 
-export struct EndOfInput {};
 
 export class Game {
     unique_ptr<Board> board;

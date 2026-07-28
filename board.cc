@@ -27,8 +27,6 @@ export class Board {
   public:
     virtual void init(bool load) = 0; // For board setup
 
-    map<Colour, Inventory> giveResources(int dieVal) const;
-
 
     //looking up things
     const Tile &findTile(int id) const;
@@ -81,7 +79,6 @@ export class FileBoard : public Board {
 
     FileBoard(istream &src);
     virtual void init(bool load) override;
-    void changeTiles();
 
 };
 
