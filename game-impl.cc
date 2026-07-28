@@ -271,7 +271,7 @@ void Game::moveGeese(Player &p) {
 
     // find possible players to steal from
     vector<bool> possibleVictims(4, false);
-    for (int id: board->findTile(n).getAdjVertices()) {
+    for (int id: board->tilesAroundVertex(n))  {
         const Vertex &vertex = board->findVertex(id);
         if (vertex.hasBuilding() && vertex.getOwner() != p.getColour() && players[static_cast<int>(vertex.getOwner())].getResources().total() != 0) {
             Colour c = vertex.getOwner();
