@@ -16,12 +16,11 @@ using namespace std;
 
 
 export class Board {
+  protected:
     vector<Tile> tiles;        // 19, indexed by tile id  
     vector<Vertex> vertices;
     vector<Edge> edges;
     int geeseTile = 0;
-
-  protected:
     // Builds the whole graph (vertices, edges, tiles);
     void initBoard();
   public:
@@ -45,9 +44,7 @@ export class Board {
     //geese related
     int getGeeseTile() const;
     void moveGeese(int id);
-    // Colours with a residence on this tile, in builder order, excluding active.
-    vector<Colour> ownersOnTile(int tileId, Colour active) const;
-    
+
     bool canBuild(int id, Colour c, bool setupPhase = false) const;
     bool canUpgrade(int id, Colour c) const;
     bool canPlaceRoad(int id, Colour c) const;

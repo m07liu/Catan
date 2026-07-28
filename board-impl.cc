@@ -387,23 +387,23 @@ void Board::moveGeese(int id) {
     tiles[geeseTile].setGeese(true);
 }
 
-vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
-    vector<Colour> owners;
-    if (!isTile(tileId)) return owners;
-    for (int vid : tiles[tileId].getAdjVertices()) {
-        const Vertex &v = vertices[vid];
-        if (!v.hasBuilding()) continue;
-        Colour owner = v.getOwner();
-        if (owner == active) continue;
-        if (find(owners.begin(), owners.end(), owner) == owners.end()) {
-            owners.emplace_back(owner);
-        }
-    }
-    sort(owners.begin(), owners.end(), [](Colour a, Colour b) {
-        return static_cast<int>(a) < static_cast<int>(b);
-    });
-    return owners;
-}
+// vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
+//     vector<Colour> owners;
+//     if (!isTile(tileId)) return owners;
+//     for (int vid : tiles[tileId].getAdjVertices()) {
+//         const Vertex &v = vertices[vid];
+//         if (!v.hasBuilding()) continue;
+//         Colour owner = v.getOwner();
+//         if (owner == active) continue;
+//         if (find(owners.begin(), owners.end(), owner) == owners.end()) {
+//             owners.emplace_back(owner);
+//         }
+//     }
+//     sort(owners.begin(), owners.end(), [](Colour a, Colour b) {
+//         return static_cast<int>(a) < static_cast<int>(b);
+//     });
+//     return owners;
+// }
 
 //legal move check
 bool Board::canBuild(int id, Colour c, bool setupPhase) const{
