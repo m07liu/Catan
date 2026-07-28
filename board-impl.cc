@@ -311,7 +311,6 @@ void Board::initBoard() {
         else vertices.emplace_back(Vertex{i, vector<int>{70, 71}}); 
     }
     // Create Edges
-    int row = 0;
     for (int i = 0; i < numofedges; i++) {
         if (i == 0) edges.emplace_back(Edge{i, vector<int>{0, 1}});
         else if (i == 1 || i == 2) edges.emplace_back(Edge{i, vector<int>{i-1, i+2}});
@@ -367,6 +366,15 @@ vector<int> Board::findTiles(int val) const {
         }
     }
     return found;
+}
+
+vector<int> Board::tilesAroundVertex(int vid) const {
+    vector<int> result;
+    for (int t = 0; t < NUM_TILES; ++t) {
+        const vector<int> &vs = tiles[t].getAdjVertices();
+        if (find(vs.begin(), vs.end(), vid) != vs.end()) result.push_back(t);
+    }
+    return result;
 }
 
 int Board::getGeeseTile() const { return geeseTile; }; 
