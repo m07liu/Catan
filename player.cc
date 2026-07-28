@@ -15,7 +15,7 @@ export class Player {
     unique_ptr<Dice> dice[2];
     Dice *die;
   public:
-    Player(Colour c, unsigned seed);
+    Player(Colour c);
 
     Colour getColour() const;
     int getPoints() const;
@@ -27,6 +27,6 @@ export class Player {
     bool canAfford(const Inventory &i) const;
     void setDice(int type); // Switches from fair to loaded and vice versa
 
-    int roll();
+    int roll(default_random_engine &rng);
 
 };

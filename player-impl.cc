@@ -9,7 +9,7 @@ import constants;
 
 using namespace std;
 
-Player::Player(Colour c, unsigned seed): c{c} {
+Player::Player(Colour c) : c{c} {
     dice[0] = make_unique<FairDice>(seed);
     dice[1] = make_unique<LoadedDice>();
     die = dice[1].get();
@@ -33,5 +33,5 @@ void Player::setDice(int type) {
     }
 }
 
-int Player::roll() { return die->roll(); }
+int Player::roll(default_random_engine &rng) { return die->roll(rng); } 
 

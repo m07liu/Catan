@@ -18,7 +18,7 @@ export class Game {
     int curPlayer = 0;
     int winner = -1;
     bool loaded = false;
-    default_random_engine rng; 
+    default_random_engine &rng; 
 
     void prompt() const;
     string readToken();
@@ -52,7 +52,7 @@ export class Game {
 
     
   public:
-    Game(int type, unsigned seed, const string & file);
+    Game(int type, unsigned seed, const string & file, default_random_engine &rng);
     bool run();
     void save(const string &file) const;
     void load(istream &in);

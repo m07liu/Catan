@@ -2,6 +2,7 @@ import <iostream>;
 import <fstream>;
 import <string>;
 import <chrono>;
+import <random>;
 import game;
 
 
@@ -40,8 +41,10 @@ int main(int argc, char* argv[]) {
     if (board) res = 1;
     bool firstRound = true;
 
+    default_random_engine rng{seed}; 
+
     while (true) {
-        Game game{res, seed, boardFile};
+        Game game{res, seed, boardFile, rng};
         if (load && firstRound) {
             ifstream in{loadFile};
             game.load(in);

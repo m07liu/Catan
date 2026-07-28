@@ -13,8 +13,8 @@ using namespace std;
 Dice::Dice(int type) : type{type} {};
 int Dice::getType() const { return type; }
 
-FairDice::FairDice(unsigned seed) : Dice{0}, rng{seed} {}
-int FairDice::roll() {
+FairDice::FairDice() : Dice{0} {}
+int FairDice::roll(default_random_engine &rng) {
     vector<int> v1 = {1,2,3,4,5,6};
     vector<int> v2 = {1,2,3,4,5,6};
 
@@ -26,7 +26,7 @@ int FairDice::roll() {
 
 LoadedDice::LoadedDice() : Dice{1} {}
 
-int LoadedDice::roll() {
+int LoadedDice::roll(default_random_engine &rng) {
    int input = -1;
     cout << "Input a roll between 2 and 12:" << endl;
 

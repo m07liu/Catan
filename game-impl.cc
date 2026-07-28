@@ -11,17 +11,20 @@ import <map>;
 import board;
 import constants;
 import player;
+import tile;
+import edge;
+import vertex;
 
 using namespace std;
 
 
-Game::Game(int type, unsigned seed, const string & file) : rng{seed} {
+Game::Game(int type, unsigned seed, const string & file, default_random_engine &rng) : rng{seed} {
     ifstream source {file};
     auto factory = make_unique<BoardFactory>();
     board = factory->createBoard(type, seed, source);
     players.reserve(4);
     for (int i = 0; i < 4; ++i) {
-        players.emplace_back(static_cast<Colour>(i), seed+i);
+        players.emplace_back(static_cast<Colour>(i));
     }
 }
 
@@ -133,7 +136,7 @@ void Game::beginTurn(Player &p) {
         if (cmd == "load") { p.setDice(1); }
         else if (cmd == "fair") { p.setDice(0); }
         else if (cmd == "roll") {
-            processRoll(p, p.roll());
+            processRoll(p, p.roll(rng));
             return;
         }
         else {
@@ -375,7 +378,7 @@ bool Game::isPlaceable(const Player &p, int edgeId) {
 void Game::build(Player &p, int vertexId) {
     if (!isBuildable(p, vertexId)) return;
 
-    board->findVertex(vertexId).build(p.getColour());
+    board->build(vertexId, p.getColour());
     p.giveResources(BuildingCosts.at(BuildingLevel::BASEMENT));
     p.addPoints(1);
     if (p.getPoints() >= 10) winner = static_cast<int>(p.getColour());
@@ -384,7 +387,7 @@ void Game::build(Player &p, int vertexId) {
 void Game::place(Player &p, int edgeId) {
     if (!isPlaceable(p, edgeId)) return;
 
-    board->findEdge(edgeId).placeRoad(p.getColour());
+    board->placeRoad(edgeId, p.getColour()); 
     p.giveResources(RoadCost);
 
 }
@@ -415,7 +418,7 @@ void Game::improve(Player &p, int vertexId) {
     else bc = BuildingCosts.at(BuildingLevel::TOWER); 
 
     p.giveResources(bc);
-    board->findVertex(vertexId).upgradeBuilding();
+    board->improve(vertexId); 
     p.addPoints(1);
     if (p.getPoints() >= 10) winner = static_cast<int>(p.getColour());
 
