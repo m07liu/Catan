@@ -151,31 +151,6 @@ void Board::initBoard() {
     }
 }
 
-int Board::pointsOf(Colour c) const {
-    int points = 0;
-    for (const Vertex &v : vertices) {
-        if (v.hasBuilding() && v.getOwner() == c) points += v.getBuilding().yield();
-    }
-    return points;
-}
-
-map<Colour, Inventory> Board::giveResources(int dieVal) const {
-    map<Colour, Inventory> gained;
-    for (const Tile &t : tiles) {
-        if (t.getVal() != dieVal) continue;
-        if (t.hasGeese()) continue;
-        ResourceType r = resourceOf(t.getType());
-        if (r == ResourceType::NONE) continue;
- 
-        for (int vid : t.getAdjVertices()) {
-            const Vertex &v = vertices[vid];
-            if (!v.hasBuilding()) continue;
-            addResource(gained[v.getOwner()], r, v.getBuilding().yield());
-        }
-    }
-    return gained;
-}
-
 //lookups
 bool Board::isVertex(int id) const { return id >= 0 && id < NUM_VERTICES; }
 bool Board::isEdge(int id) const   { return id >= 0 && id < NUM_EDGES; }
@@ -282,7 +257,7 @@ vector<int> roadsOwnedBy(Colour c) const {
     vector<int> ret {};
     int id = 0;
     for (auto iter : edges) {
-        if (iter.getOwner() == c) ret.emplaceback(id);
+        if (iter.getOwner() == c) ret.emplace_back(id);
         id++;
     }
     return ret;
@@ -292,14 +267,11 @@ vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const {
     vector<pair<int, BuildingLevel>> ret {};
     int id = 0;
     for (auto iter : vertices) {
-        if (iter.getOwner() == c) ret.emplaceback({id, iter.getBuilding().level});
+        if (iter.getOwner() == c) ret.emplace_back({id, iter.getBuilding().level});
     }
     return ret;
 }
 
-int pointsOf(Colour c) const {
-
-}
 
 //------------------------------Concrete Products-------------------------------
 
@@ -307,37 +279,35 @@ RandomBoard::RandomBoard(unsigned seed) : seed{seed} {}
 
 void RandomBoard::init() {
     initBoard();
-    for (int i = 2; i <= 12; i++) {
-        tiles.insert({i, vector<Tile>{}});
-    }
+
     vector<int> dicenums =
         {2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12};
-    vector<TileType> tiles = {
+    vector<TileType> types = {
         TileType::WIFI, TileType::WIFI, TileType::WIFI,
         TileType::HEAT, TileType::HEAT, TileType::HEAT,
-        TileType::BRICK, TileType::Brick, TileType::Brick, TileType::BRICK, 
+        TileType::BRICK, TileType::BRICK, TileType::BRICK, TileType::BRICK, 
         TileType::ENERGY, TileType::ENERGY,TileType::ENERGY, TileType::ENERGY,  
         TileType::GLASS, TileType::GLASS, TileType::GLASS, TileType::GLASS,
     };
 
     default_random_engine rng{seed};
     shuffle(dicenums.begin(), dicenums.end(), rng);
-    shuffle(tiles.begin(), tiles.end(), rng);
+    shuffle(types.begin(), types.end(), rng);
 
-    int tilesindex = 0; // Used to skip when the tile is of type PARK
-    for (int i = 0; i < 19; i++) {
+    int typesIndex = 0; // Used to skip when the tile is of type PARK
+    for (int i = 0; i < NUM_TILES; i++) {
         if (dicenums[i] == 7) { // Park Tile
             tiles.emplace_back(Tile{i, dicenums[i], TileType::PARK, TILE_VERTICES[i], TILE_EDGES[i]});
             tiles[i].setGeese(); // Change Geese to True
             geeseTile = i;
         } else {
             tiles.emplace_back(Tile{i, dicenums[i], tiles[tilesindex], TILE_VERTICES[i], TILE_EDGES[i]});
-            tilesindex++;
+            typesIndex++;
         }
     }
 }
 
-FileBoard::FileBoard(istream &src) : src{src} {}
+FileBoard::FileBoard(istream &src) : src{&src} {}
 
 void FileBoard::init() {
     initBoard();
@@ -345,7 +315,7 @@ void FileBoard::init() {
     int input; 
     bool dice = false;
     int id = 0;
-    while (src >> input) {
+    while (*src >> input) {
         if (dice && 2 <= input && input <= 12) { // Input is dice number for the tile
             tiles.emplace_back(Tile{id, input, tt, TILE_VERTICES[id], TILE_EDGES[id]});
             id++;
@@ -359,9 +329,8 @@ void FileBoard::init() {
     }
 }
 
-void setStream(istream &src) { 
-    this->src = src; 
-    init();
+void FileBoard::setStream(istream &s) { 
+    src= &s;
 }
 
 unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, istream &src) {

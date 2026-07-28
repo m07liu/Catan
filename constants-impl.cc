@@ -2,6 +2,7 @@ module constants;
 
 import <string>;
 import <optional>;
+import <stdexcept>;
 using namespace std;
 
 Inventory &Inventory::operator+=(const Inventory &other) {

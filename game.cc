@@ -23,6 +23,7 @@ export class Game {
 
     void prompt() const;
     string readToken();
+    optional<int> readInt();
 
     void printPlayer(const Player &p) const; // <colour> has <numPoints> building points, <numBrick> brick, ... and <numWiFi> WiFi.
     void printAll() const; // prints the current status of all builders in order from builder 0 to 3.

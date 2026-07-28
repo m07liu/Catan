@@ -14,11 +14,10 @@ export class Edge {
     Edge(int id, vector<int> adjVertices);
     int getId() const;
     const vector<int> &getAdjVertices() const;
-    const vector<int> &getEdges() const;
     Colour getOwner() const;
     bool hasRoad() const;
     string printRoad() const;
     void placeRoad(Colour c);
 
-}
+};
 

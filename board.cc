@@ -34,9 +34,9 @@ export class Board {
 
     //looking up things
     const Tile &findTile(int id) const;
-    const vector<int> &findTiles(int val) const;
     const Vertex &findVertex(int id) const;
     const Edge &findEdge(int id) const;
+    vector<int> findTiles(int val) const;
     // const Tile &getTile(int id) const;
     // const Vertex &getVertex(int id) const;
     // const Edge &getEdge(int id) const;
@@ -63,12 +63,6 @@ export class Board {
     // save helpers used by Game
     vector<int> roadsOwnedBy(Colour c) const;
     vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const;
-<<<<<<< HEAD
-    
-    virtual ~Board() = default;
-=======
-    int pointsOf(Colour c) const;
->>>>>>> 16c9161dbe9749bb87c5e3e94513fb987a4a923a
 
     friend ostream &operator<<(ostream &out, const Board &b);
 };
@@ -83,7 +77,7 @@ export class RandomBoard : public Board {
 };
 
 export class FileBoard : public Board {
-    istream src;
+    istream *src;
   public:
 
     FileBoard(istream &src);

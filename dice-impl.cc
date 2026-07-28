@@ -1,6 +1,8 @@
 module dice;
 
 import <random>;
+import <algorithm>;
+import <vector>;
 import <string>;
 import <limits>;
 import <iostream>;
