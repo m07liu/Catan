@@ -15,7 +15,7 @@ Colour Vertex::getOwner() const { return building.owner; }
 bool Vertex::hasBuilding() const { return building.owner != Colour::NONE; }
 void Vertex::upgradeBuilding() { 
     if (building.level != BuildingLevel::TOWER) {
-        building.level = static_cast<BuildingLevel>(1+building.level);
+        building.level = static_cast<BuildingLevel>(1+static_cast<int>(building.level));
     }
 }
 string Vertex::printBuilding() const { return building.print(); }

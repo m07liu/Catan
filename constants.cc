@@ -65,4 +65,6 @@ export Inventory singletonInv(int i);
 export optional<Colour> parseColour(const string &s);
 export optional<int> parseResourceIdx(const string &s);
 
+export string toLower(string s);
+
 

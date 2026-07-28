@@ -15,13 +15,13 @@ import player;
 using namespace std;
 
 
-Game::Game(int type, unsigned seed, const string & file) {
+Game::Game(int type, unsigned seed, const string & file) : rng{seed} {
     ifstream source {file};
     auto factory = make_unique<BoardFactory>();
     board = factory->createBoard(type, seed, source);
     players.reserve(4);
     for (int i = 0; i < 4; ++i) {
-        players.emplace_back(static_cast<Colour>(i), seed);
+        players.emplace_back(static_cast<Colour>(i), seed+i);
     }
 }
 
@@ -55,8 +55,8 @@ void Game::printAll() const {
 
 void Game::printBuildings(const Player &p) const {
     cout << colourToString(p.getColour()) << " has built:\n";
-    for (int id: housesOf(p)) {
-        cout << id << " " << buildingLevelToChar(board->findVertex(id).getBuilding().level) << "\n";
+    for (pair<int, BuildingLevel> pr: buildingsOwnedBy(p.getColour())) {
+        cout << pr.first << " " << buildingLevelToChar(pr.second) << "\n";
     }
 }
 
@@ -91,14 +91,14 @@ void Game::setup() {
             try { n = stoi(readToken()); } 
             catch (...) { cout << "You cannot build here." << endl; continue; }
 
-            if (n < 0 || n >= NUM_VERTICES || !board->findVertex(n).hasBuilding()) {
+            if (!board->canBuild(n, c, true)) {
                 cout << "You cannot build here." << endl; continue;
             }
 
             break;
         }
 
-        board->findVertex(n).build(c);
+        board->build(n, c);
         p.addPoints(1);
         if (i >= 4) {
             Inventory inventory;
@@ -129,7 +129,7 @@ void Game::beginTurn(Player &p) {
     while (true) {
         prompt();
         string cmd = readToken();
-        if (cmd == "loaded") { p.setDice(1); }
+        if (cmd == "load") { p.setDice(1); }
         else if (cmd == "fair") { p.setDice(0); }
         else if (cmd == "roll") {
             processRoll(p, p.roll());
@@ -303,7 +303,7 @@ void Game::moveGeese(Player &p) {
     int pick = pickRandomResource(victim.getResources(), rng);
     victim.giveResources(singletonInv(pick));
     p.addResources(singletonInv(pick));
-    cout << "Builder " << colourToString(p.getColour()) << " steals " << invnumToResource(idx) << " from builder " << colourToString(target) << "." << endl;
+    cout << "Builder " << colourToString(p.getColour()) << " steals " << invnumToResource(pick) << " from builder " << colourToString(*target) << "." << endl;
 
 }
 
@@ -311,7 +311,7 @@ void Game::distributeResources(int rollVal) {
     const vector<Tile> &tiles = board->findTiles(rollVal);
     vector<Inventory> distribute(4);
     for (const Tile &tile: tiles) {
-        if (tile.getType() == TileType::PARK || tile.hasGeese()) return;
+        if (tile.getType() == TileType::PARK || tile.hasGeese()) continue;
         for (int id: tile.getAdjVertices()) {
             const Vertex &v = board->findVertex(id);
             if (v.hasBuilding()) {
@@ -435,7 +435,7 @@ bool Game::canTrade(Player &p1, const string &colour, const string &give, const 
     }
 
     Player &p2 = players[static_cast<int>(*c)];
-    if (p2.getResource()[*r2] == 0) {
+    if (p2.getResources()[*r2] == 0) {
         cout << "The other player don't have enough resources." << endl;
         return false;
     }
@@ -549,7 +549,7 @@ void Game::load(istream &in) {
 
     getline(in, line); 
     istringstream bs{line};
-    board->loadBoard(bs);
+    board->setLayout(bs);
 
     int geeseLoc;
     in >> geeseLoc;
