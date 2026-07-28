@@ -5,10 +5,9 @@ import constants;
 import <string>;
 using namespace std;
 
-Vertex::Vertex(int id, vector<int> adjEdges, vector<int> adjTiles) : id{id}, adjEdges{move(adjEdges)}, adjTiles{move(adjTiles)} {}
+Vertex::Vertex(int id, vector<int> adjEdges) : id{id}, adjEdges{move(adjEdges)} {}
 
 int Vertex::getId() const { return id; }
-const vector<int> &Vertex::getAdjTiles() const { return adjTiles; }
 const vector<int> &Vertex::getAdjEdges() const { return adjEdges; }
 const Building &Vertex::getBuilding() const { return building; }
 Colour Vertex::getOwner() const { return building.owner; }
@@ -19,6 +18,4 @@ void Vertex::build(Colour c) {
     building.owner = c;
     building.level = BuildingLevel::BASEMENT;
 }
-
-// bool Vertex::isBuildableBy(Colour c);
 
