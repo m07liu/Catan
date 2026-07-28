@@ -368,6 +368,15 @@ vector<int> Board::findTiles(int val) const {
     return found;
 }
 
+vector<int> Board::tilesAroundVertex(int vid) const {
+    vector<int> result;
+    for (int t = 0; t < NUM_TILES; ++t) {
+        const vector<int> &vs = tiles[t].getAdjVertices();
+        if (find(vs.begin(), vs.end(), vid) != vs.end()) result.push_back(t);
+    }
+    return result;
+}
+
 int Board::getGeeseTile() const { return geeseTile; }; 
 
 void Board::moveGeese(int id) {

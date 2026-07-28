@@ -106,7 +106,7 @@ void Game::setup() {
         p.addPoints(1);
         if (i >= 4) {
             Inventory inventory;
-            for (int id: board->findVertex(n).getAdjTiles()) {
+            for (int id: board->tilesAroundVertex(n)) {
                 const Tile &t = board->findTile(id);
                 if (t.getType() != TileType::PARK) inventory[static_cast<int>(t.getType())] += 1;
             }
