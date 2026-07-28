@@ -14,8 +14,6 @@ import constants;
 
 using namespace std;
 
-// One entry per tile, in tile-id order: the resource it produces and its value.
-export using Layout = vector<pair<TileType, int>>;
 
 export class Board {
     vector<Tile> tiles;        // 19, indexed by tile id  
@@ -24,19 +22,17 @@ export class Board {
     int geeseTile = 0;
 
   protected:
-    // Builds the whole graph (vertices, edges, tiles) from a finished layout.
-    void initBoard(const Layout &layout);
+    // Builds the whole graph (vertices, edges, tiles);
+    void initBoard();
   public:
     virtual void init(bool load) = 0; // For board setup
-
-    map<Colour, Inventory> giveResources(int dieVal) const;
 
 
     //looking up things
     const Tile &findTile(int id) const;
-    const vector<int> &findTiles(int val) const;
     const Vertex &findVertex(int id) const;
     const Edge &findEdge(int id) const;
+    vector<int> findTiles(int val) const;
     // const Tile &getTile(int id) const;
     // const Vertex &getVertex(int id) const;
     // const Edge &getEdge(int id) const;
@@ -52,7 +48,7 @@ export class Board {
     // Colours with a residence on this tile, in builder order, excluding active.
     vector<Colour> ownersOnTile(int tileId, Colour active) const;
     
-    bool canBuild(int id, Colour c) const;
+    bool canBuild(int id, Colour c, bool setupPhase = false) const;
     bool canUpgrade(int id, Colour c) const;
     bool canPlaceRoad(int id, Colour c) const;
 
@@ -63,8 +59,8 @@ export class Board {
     // save helpers used by Game
     vector<int> roadsOwnedBy(Colour c) const;
     vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const;
-    int pointsOf(Colour c) const;
 
+    void setLayout(istream &in); 
     friend ostream &operator<<(ostream &out, const Board &b);
 };
 
@@ -78,13 +74,11 @@ export class RandomBoard : public Board {
 };
 
 export class FileBoard : public Board {
-    istream src;
+    istream *src;
   public:
 
     FileBoard(istream &src);
-    void loadBoard(istream &src);
     virtual void init(bool load) override;
-    void changeTiles();
 
 };
 

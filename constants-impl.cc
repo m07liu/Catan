@@ -2,7 +2,15 @@ module constants;
 
 import <string>;
 import <optional>;
+import <stdexcept>;
 using namespace std;
+
+string toLower(string s) {
+    for (char &c : s) {
+        c = tolower(static_cast<unsigned char>(c));
+    }
+    return s;
+}
 
 Inventory &Inventory::operator+=(const Inventory &other) {
     bricks += other.bricks;
