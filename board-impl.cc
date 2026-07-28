@@ -311,7 +311,6 @@ void Board::initBoard() {
         else vertices.emplace_back(Vertex{i, vector<int>{70, 71}, vector<int>{18}}); 
     }
     // Create Edges
-    int row = 0;
     for (int i = 0; i < numofedges; i++) {
         if (i == 0) edges.emplace_back(Edge{i, vector<int>{0, 1}});
         else if (i == 1 || i == 2) edges.emplace_back(Edge{i, vector<int>{i-1, i+2}});
