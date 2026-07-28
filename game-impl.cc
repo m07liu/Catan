@@ -21,7 +21,7 @@ Game::Game(int type, unsigned seed, const string & file) {
     board = factory->createBoard(type, seed, source);
     players.reserve(4);
     for (int i = 0; i < 4; ++i) {
-        players.emplace_back(static_cast<Colour>(i));
+        players.emplace_back(static_cast<Colour>(i), seed);
     }
 }
 
@@ -129,10 +129,10 @@ void Game::beginTurn(Player &p) {
     while (true) {
         prompt();
         string cmd = readToken();
-        if (cmd == "load") { p.setDice(make_unique<LoadedDice>()); }
-        else if (cmd == "fair") { p.setDice(make_unique<FairDice>()); }
+        if (cmd == "loaded") { p.setDice(1); }
+        else if (cmd == "fair") { p.setDice(0); }
         else if (cmd == "roll") {
-            processRoll(p, p.roll(rng));
+            processRoll(p, p.roll());
             return;
         }
         else {
@@ -549,7 +549,7 @@ void Game::load(istream &in) {
 
     getline(in, line); 
     istringstream bs{line};
-    board->setStream(bs);
+    board->loadBoard(bs);
 
     int geeseLoc;
     in >> geeseLoc;

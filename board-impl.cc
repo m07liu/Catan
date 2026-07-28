@@ -277,7 +277,7 @@ vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const {
 
 RandomBoard::RandomBoard(unsigned seed) : seed{seed} {}
 
-void RandomBoard::init() {
+void RandomBoard::init(bool load) {
     initBoard();
 
     vector<int> dicenums =
@@ -309,7 +309,7 @@ void RandomBoard::init() {
 
 FileBoard::FileBoard(istream &src) : src{&src} {}
 
-void FileBoard::init() {
+void FileBoard::init(bool load) {
     initBoard();
     TileType tt;
     int input; 
@@ -317,7 +317,8 @@ void FileBoard::init() {
     int id = 0;
     while (*src >> input) {
         if (dice && 2 <= input && input <= 12) { // Input is dice number for the tile
-            tiles.emplace_back(Tile{id, input, tt, TILE_VERTICES[id], TILE_EDGES[id]});
+            if (load) tiles[id].changeTile(input, tt);
+            else tiles.emplace_back(Tile{id, input, tt, TILE_VERTICES[id], TILE_EDGES[id]});
             id++;
         } else if (! dice && 0 <= input && input <= 5) { // Input is tile type
             tt = static_cast<TileType>(input); // Convert input to TileType
@@ -329,17 +330,18 @@ void FileBoard::init() {
     }
 }
 
-void FileBoard::setStream(istream &s) { 
+
+void FileBoard::loadBoard(istream &s) { 
     src= &s;
 }
 
 unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, istream &src) {
     if (type == 0) {
         auto ret = make_unique<Board>(seed);
-        ret->init();
+        ret->init(false);
         return ret;
     }
     auto ret = make_unique<Board>(src);
-    ret->init();
+    ret->init(false);
     return ret;
 }

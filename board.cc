@@ -27,7 +27,7 @@ export class Board {
     // Builds the whole graph (vertices, edges, tiles) from a finished layout.
     void initBoard(const Layout &layout);
   public:
-    virtual void init() = 0; // For board setup
+    virtual void init(bool load) = 0; // For board setup
 
     map<Colour, Inventory> giveResources(int dieVal) const;
 
@@ -73,7 +73,7 @@ export class RandomBoard : public Board {
     unsigned seed;
   public:
     RandomBoard(unsigned seed);
-    virtual void init() override;
+    virtual void init(bool load) override;
 };
 
 export class FileBoard : public Board {
@@ -81,8 +81,9 @@ export class FileBoard : public Board {
   public:
 
     FileBoard(istream &src);
-    void setStream(istream &src);
-    virtual void init() override;
+    void loadBoard(istream &src);
+    virtual void init(bool load) override;
+    void changeTiles();
 
 };
 
