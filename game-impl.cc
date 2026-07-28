@@ -56,7 +56,7 @@ void Game::printAll() const {
 void Game::printBuildings(const Player &p) const {
     cout << colourToString(p.getColour()) << " has built:\n";
     for (pair<int, BuildingLevel> pr: buildingsOwnedBy(p.getColour())) {
-        cout << pr.first << " " << buildingLevelToChar(pr.second) << "\n";
+        cout << pr.first << " " << board->buildingLevelToChar(pr.second) << "\n";
     }
 }
 
@@ -157,17 +157,17 @@ void Game::duringTurn(Player &p) {
         } else if (cmd == "build-road") {
             auto num = readInt();
             if (!num) cout << "You cannot build here." << endl;
-            else if (isPlaceable(p, num)) place(p, num);
+            else if (isPlaceable(p, *num)) place(p, *num);
 
         } else if (cmd == "build-res") {
             auto num = readInt();
             if (!num) cout << "You cannot build here." << endl;
-            else if (isBuildable(p, num)) build(p, num);
+            else if (isBuildable(p, *num)) build(p, *num);
             
         } else if (cmd == "improve") {
             auto num = readInt();
             if (!num) cout << "You cannot build here." << endl;
-            else if (canImprove(p, num)) improve(p, num);
+            else if (canImprove(p, *num)) improve(p, *num);
 
         } else if (cmd == "trade") {
             string toWhom = readToken();
@@ -308,9 +308,9 @@ void Game::moveGeese(Player &p) {
 }
 
 void Game::distributeResources(int rollVal) {
-    const vector<Tile> &tiles = board->findTiles(rollVal);
     vector<Inventory> distribute(4);
-    for (const Tile &tile: tiles) {
+    for (int tid: board->findTiles(rollVal)) {
+        const Tile &tile = board->findTile(tid);
         if (tile.getType() == TileType::PARK || tile.hasGeese()) continue;
         for (int id: tile.getAdjVertices()) {
             const Vertex &v = board->findVertex(id);

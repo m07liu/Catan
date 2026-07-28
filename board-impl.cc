@@ -198,7 +198,7 @@ vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
 }
 
 //legal move check
-bool Board::canBuild(int id, Colour c, bool setupPhase = false) const{
+bool Board::canBuild(int id, Colour c, bool setupPhase) const{
     if (!isVertex(id)) return false;
     const Vertex &v = vertices[id];
     if (v.hasBuilding()) return false;
@@ -268,7 +268,7 @@ vector<pair<int, BuildingLevel>> Board::buildingsOwnedBy(Colour c) const {
     vector<pair<int, BuildingLevel>> ret {};
     int id = 0;
     for (auto iter : vertices) {
-        if (iter.getOwner() == c) ret.emplace_back({id, iter.getBuilding().level});
+        if (iter.getOwner() == c) ret.push_back({id, iter.getBuilding().level});
         id++;
     }
     return ret;
