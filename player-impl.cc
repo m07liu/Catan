@@ -10,7 +10,7 @@ import constants;
 using namespace std;
 
 Player::Player(Colour c) : c{c} {
-    dice[0] = make_unique<FairDice>(seed);
+    dice[0] = make_unique<FairDice>();
     dice[1] = make_unique<LoadedDice>();
     die = dice[1].get();
 }

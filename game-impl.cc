@@ -18,7 +18,7 @@ import vertex;
 using namespace std;
 
 
-Game::Game(int type, unsigned seed, const string & file, default_random_engine &rng) : rng{seed} {
+Game::Game(int type, unsigned seed, const string & file, default_random_engine &rng) : rng{rng} {
     ifstream source {file};
     auto factory = make_unique<BoardFactory>();
     board = factory->createBoard(type, seed, source);

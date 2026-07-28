@@ -125,22 +125,13 @@ static void putCentred(vector<string> &drawing, int line, int lo, int hi, const 
     put(drawing, line, lo + (width - static_cast<int>(s.size())) / 2, s);
 }
  
-static void putLeftVertical(vector<string> &drawing,
-                     int line,
-                     int col,
-                     const string &label) {
-    drawing[line][col] = '|';
-    put(drawing, line + 1, col, label);
-    drawing[line + 2][col] = '|';
-}
-
-static void putRightVertical(vector<string> &drawing,
-                      int line,
-                      int col,
-                      const string &label) {
-    drawing[line][col] = '|';
-    put(drawing, line + 1, col - 1, label);
-    drawing[line + 2][col] = '|';
+static void putVertical(vector<string> &canvas,
+                 int row,
+                 int labelColumn,
+                 const string &label) {
+    canvas[row][labelColumn + 1] = '|';
+    put(canvas, row + 1, labelColumn, label);
+    canvas[row + 2][labelColumn + 1] = '|';
 }
 
 static string vertexLabel(const Vertex &vertex, int id) {
@@ -179,70 +170,70 @@ ostream &operator<<(ostream &out, const Board &board) {
         const vector<int> &vertexIds = TILE_VERTICES[tileId];
         const vector<int> &edgeIds = TILE_EDGES[tileId];
 
-        int line = TILE_LINE[tileId];
+        int tileRow = TILE_LINE[tileId];
         int col = TILE_COL[tileId];
 
 
         // The 6 Vertices
-        put(drawing, line, col,
+        put(drawing, tileRow, col,
             vertexLabel(board.vertices[vertexIds[TL]], vertexIds[TL]));
 
-        put(drawing, line, col + 10,
+        put(drawing, tileRow, col + 10,
             vertexLabel(board.vertices[vertexIds[TR]], vertexIds[TR]));
 
-        put(drawing, line + 4, col,
+        put(drawing, tileRow + 4, col,
             vertexLabel(board.vertices[vertexIds[ML]], vertexIds[ML]));
 
-        put(drawing, line + 4, col + 10,
+        put(drawing, tileRow + 4, col + 10,
             vertexLabel(board.vertices[vertexIds[MR]], vertexIds[MR]));
 
-        put(drawing, line + 8, col,
+        put(drawing, tileRow + 8, col,
             vertexLabel(board.vertices[vertexIds[BL]], vertexIds[BL]));
 
-        put(drawing, line + 8, col + 10,
+        put(drawing, tileRow + 8, col + 10,
             vertexLabel(board.vertices[vertexIds[BR]], vertexIds[BR]));
 
 
         // Top and bottom horizontal edges
-        put(drawing, line, col + 4,
+        put(drawing, tileRow, col + 4,
             "--" + edgeLabel(board.edges[edgeIds[E_TOP]], edgeIds[E_TOP] ) +"--"
         );
 
-        put(drawing, line + 8, col + 4,
+        put(drawing, tileRow + 8, col + 4,
             "--" + edgeLabel(board.edges[edgeIds[E_BOT]], edgeIds[E_BOT]) + "--"
         );
 
 
         // Upper-left and upper-right vertical edges
-        putLeftVertical(drawing, line + 1, col,
-                        edgeLabel(board.edges[edgeIds[E_UL]], edgeIds[E_UL]));
+        putVertical(drawing, tileRow + 1, col,
+                    edgeLabel(board.edges[edgeIds[E_UL]], edgeIds[E_UL]));
 
-        putRightVertical(drawing, line + 1, col + 13,
-                         edgeLabel(board.edges[edgeIds[E_UR]], edgeIds[E_UR]));
+        putVertical(drawing, tileRow + 1, col + 10,
+                    edgeLabel(board.edges[edgeIds[E_UR]], edgeIds[E_UR]));
 
         // Lower-left and lower-right vertical edges
-        putLeftVertical(drawing, line + 5, col, 
-                        edgeLabel(board.edges[edgeIds[E_LL]], edgeIds[E_LL]));
+        putVertical(drawing, tileRow + 5, col, 
+                    edgeLabel(board.edges[edgeIds[E_LL]], edgeIds[E_LL]));
 
-        putRightVertical(drawing, line + 5, col + 13,
-                         edgeLabel(board.edges[edgeIds[E_LR]], edgeIds[E_LR]));
+        putVertical(drawing, tileRow + 5, col + 10,
+                    edgeLabel(board.edges[edgeIds[E_LR]], edgeIds[E_LR]));
 
         // Tile ID
-        putCentred(drawing, line + 2, col + 2, col + 11, to_string(tileId));
+        putCentred(drawing, tileRow + 2, col + 2, col + 9, to_string(tileId));
 
         // Tile resource type
-        putCentred(drawing, line + 3, col + 1, col + 12,
+        putCentred(drawing, tileRow + 3, col + 2, col + 10,
                    tileTypeName(tile.getType()));
 
 
         // Tile values, PARK does not display its value
         if (tile.getType() != TileType::PARK) {
-            putCentred(drawing, line + 4, col + 4, col + 9,
+            putCentred(drawing, tileRow + 4, col + 4, col + 9,
             to_string(tile.getVal()));
         }
 
         if (tileId == board.geeseTile) {
-            putCentred(drawing, line + 5, col + 1, col + 12, "GEESE");
+            putCentred(drawing, tileRow + 5, col + 2, col + 10, "GEESE");
         }
     }
 
@@ -264,60 +255,60 @@ void Board::initBoard() {
     int numofedges = 72;
     // Create Vertices
     for (int i = 0; i < numofvertices; i++) {
-        if (i == 0) vertices.emplace_back(Vertex{i, vector<int>{0, 1}}); 
-        else if (i == 1) vertices.emplace_back(Vertex{i, vector<int>{0, 2}}); 
-        else if (i == 2) vertices.emplace_back(Vertex{i, vector<int>{3, 5}}); 
-        else if (i == 3) vertices.emplace_back(Vertex{i, vector<int>{1, 3, 6}}); 
-        else if (i == 4) vertices.emplace_back(Vertex{i, vector<int>{2, 4, 7}}); 
-        else if (i == 5) vertices.emplace_back(Vertex{i, vector<int>{4, 8}}); 
-        else if (i == 6) vertices.emplace_back(Vertex{i, vector<int>{9, 12}}); 
-        else if (i == 7) vertices.emplace_back(Vertex{i, vector<int>{5, 9, 13}}); 
-        else if (i == 8) vertices.emplace_back(Vertex{i, vector<int>{6, 10, 14}}); 
-        else if (i == 9) vertices.emplace_back(Vertex{i, vector<int>{7, 10, 15}}); 
-        else if (i == 10) vertices.emplace_back(Vertex{i, vector<int>{8, 11, 16}}); 
-        else if (i == 11) vertices.emplace_back(Vertex{i, vector<int>{11, 17}}); 
-        else if (i == 12) vertices.emplace_back(Vertex{i, vector<int>{12, 20}}); 
-        else if (i == 13) vertices.emplace_back(Vertex{i, vector<int>{13, 18, 21}}); 
-        else if (i == 14) vertices.emplace_back(Vertex{i, vector<int>{14, 18, 22}}); 
-        else if (i == 15) vertices.emplace_back(Vertex{i, vector<int>{15, 19, 23}}); 
-        else if (i == 16) vertices.emplace_back(Vertex{i, vector<int>{16, 19, 24}}); 
-        else if (i == 17) vertices.emplace_back(Vertex{i, vector<int>{17, 25}}); 
-        else if (i == 18) vertices.emplace_back(Vertex{i, vector<int>{20, 26, 29}}); 
-        else if (i == 19) vertices.emplace_back(Vertex{i, vector<int>{21, 26, 30}}); 
-        else if (i == 20) vertices.emplace_back(Vertex{i, vector<int>{22, 27, 31}}); 
-        else if (i == 21) vertices.emplace_back(Vertex{i, vector<int>{23, 27, 32}}); 
-        else if (i == 22) vertices.emplace_back(Vertex{i, vector<int>{24, 28, 33}}); 
-        else if (i == 23) vertices.emplace_back(Vertex{i, vector<int>{25, 28, 34}}); 
-        else if (i == 24) vertices.emplace_back(Vertex{i, vector<int>{29, 37}}); 
-        else if (i == 25) vertices.emplace_back(Vertex{i, vector<int>{30, 35, 38}}); 
-        else if (i == 26) vertices.emplace_back(Vertex{i, vector<int>{31, 35, 39}}); 
-        else if (i == 27) vertices.emplace_back(Vertex{i, vector<int>{32, 36, 40}}); 
-        else if (i == 28) vertices.emplace_back(Vertex{i, vector<int>{33, 36, 41}}); 
-        else if (i == 29) vertices.emplace_back(Vertex{i, vector<int>{34, 42}}); 
-        else if (i == 30) vertices.emplace_back(Vertex{i, vector<int>{37, 43, 46}}); 
-        else if (i == 31) vertices.emplace_back(Vertex{i, vector<int>{38, 43, 47}}); 
-        else if (i == 32) vertices.emplace_back(Vertex{i, vector<int>{39, 44, 48}}); 
-        else if (i == 33) vertices.emplace_back(Vertex{i, vector<int>{40, 44, 49}}); 
-        else if (i == 34) vertices.emplace_back(Vertex{i, vector<int>{41, 45, 50}}); 
-        else if (i == 35) vertices.emplace_back(Vertex{i, vector<int>{42, 45, 51}}); 
-        else if (i == 36) vertices.emplace_back(Vertex{i, vector<int>{46, 54}}); 
-        else if (i == 37) vertices.emplace_back(Vertex{i, vector<int>{47, 52, 55}}); 
-        else if (i == 38) vertices.emplace_back(Vertex{i, vector<int>{48, 52, 56}}); 
-        else if (i == 39) vertices.emplace_back(Vertex{i, vector<int>{49, 53, 57}}); 
-        else if (i == 40) vertices.emplace_back(Vertex{i, vector<int>{50, 53, 58}}); 
-        else if (i == 41) vertices.emplace_back(Vertex{i, vector<int>{51, 59}}); 
-        else if (i == 42) vertices.emplace_back(Vertex{i, vector<int>{54, 60}}); 
-        else if (i == 43) vertices.emplace_back(Vertex{i, vector<int>{55, 60, 63}}); 
-        else if (i == 44) vertices.emplace_back(Vertex{i, vector<int>{56, 61, 64}}); 
-        else if (i == 45) vertices.emplace_back(Vertex{i, vector<int>{57, 61, 65}}); 
-        else if (i == 46) vertices.emplace_back(Vertex{i, vector<int>{58, 62, 66}}); 
-        else if (i == 47) vertices.emplace_back(Vertex{i, vector<int>{59, 62}}); 
-        else if (i == 48) vertices.emplace_back(Vertex{i, vector<int>{63, 67}}); 
-        else if (i == 49) vertices.emplace_back(Vertex{i, vector<int>{64, 67, 69}}); 
-        else if (i == 50) vertices.emplace_back(Vertex{i, vector<int>{65, 68, 70}}); 
-        else if (i == 51) vertices.emplace_back(Vertex{i, vector<int>{66, 68}}); 
-        else if (i == 52) vertices.emplace_back(Vertex{i, vector<int>{69, 71}}); 
-        else vertices.emplace_back(Vertex{i, vector<int>{70, 71}}); 
+            if (i == 0) vertices.emplace_back(Vertex{i, vector<int>{0, 1}, vector<int>{0}});
+        else if (i == 1) vertices.emplace_back(Vertex{i, vector<int>{0, 2}, vector<int>{0}});
+        else if (i == 2) vertices.emplace_back(Vertex{i, vector<int>{3, 5}, vector<int>{1}});
+        else if (i == 3) vertices.emplace_back(Vertex{i, vector<int>{1, 3, 6}, vector<int>{0, 1}});
+        else if (i == 4) vertices.emplace_back(Vertex{i, vector<int>{2, 4, 7}, vector<int>{0, 2}});
+        else if (i == 5) vertices.emplace_back(Vertex{i, vector<int>{4, 8}, vector<int>{2}});
+        else if (i == 6) vertices.emplace_back(Vertex{i, vector<int>{9, 12}, vector<int>{3}});
+        else if (i == 7) vertices.emplace_back(Vertex{i, vector<int>{5, 9, 13}, vector<int>{1, 3}});
+        else if (i == 8) vertices.emplace_back(Vertex{i, vector<int>{6, 10, 14}, vector<int>{0, 1, 4}});
+        else if (i == 9) vertices.emplace_back(Vertex{i, vector<int>{7, 10, 15}, vector<int>{0, 2, 4}});
+        else if (i == 10) vertices.emplace_back(Vertex{i, vector<int>{8, 11, 16}, vector<int>{2, 5}});
+        else if (i == 11) vertices.emplace_back(Vertex{i, vector<int>{11, 17}, vector<int>{5}});
+        else if (i == 12) vertices.emplace_back(Vertex{i, vector<int>{12, 20}, vector<int>{3}});
+        else if (i == 13) vertices.emplace_back(Vertex{i, vector<int>{13, 18, 21}, vector<int>{1, 3, 6}});
+        else if (i == 14) vertices.emplace_back(Vertex{i, vector<int>{14, 18, 22}, vector<int>{1, 4, 6}});
+        else if (i == 15) vertices.emplace_back(Vertex{i, vector<int>{15, 19, 23}, vector<int>{2, 4, 7}});
+        else if (i == 16) vertices.emplace_back(Vertex{i, vector<int>{16, 19, 24}, vector<int>{2, 5, 7}});
+        else if (i == 17) vertices.emplace_back(Vertex{i, vector<int>{17, 25}, vector<int>{5}});
+        else if (i == 18) vertices.emplace_back(Vertex{i, vector<int>{20, 26, 29}, vector<int>{3, 8}});
+        else if (i == 19) vertices.emplace_back(Vertex{i, vector<int>{21, 26, 30}, vector<int>{3, 6, 8}});
+        else if (i == 20) vertices.emplace_back(Vertex{i, vector<int>{22, 27, 31}, vector<int>{4, 6, 9}});
+        else if (i == 21) vertices.emplace_back(Vertex{i, vector<int>{23, 27, 32}, vector<int>{4, 7, 9}});
+        else if (i == 22) vertices.emplace_back(Vertex{i, vector<int>{24, 28, 33}, vector<int>{5, 7, 10}});
+        else if (i == 23) vertices.emplace_back(Vertex{i, vector<int>{25, 28, 34}, vector<int>{5, 10}});
+        else if (i == 24) vertices.emplace_back(Vertex{i, vector<int>{29, 37}, vector<int>{8}});
+        else if (i == 25) vertices.emplace_back(Vertex{i, vector<int>{30, 35, 38}, vector<int>{6, 8, 11}});
+        else if (i == 26) vertices.emplace_back(Vertex{i, vector<int>{31, 35, 39}, vector<int>{6, 9, 11}});
+        else if (i == 27) vertices.emplace_back(Vertex{i, vector<int>{32, 36, 40}, vector<int>{7, 9, 12}});
+        else if (i == 28) vertices.emplace_back(Vertex{i, vector<int>{33, 36, 41}, vector<int>{7, 10, 12}});
+        else if (i == 29) vertices.emplace_back(Vertex{i, vector<int>{34, 42}, vector<int>{10}});
+        else if (i == 30) vertices.emplace_back(Vertex{i, vector<int>{37, 43, 46}, vector<int>{8, 13}});
+        else if (i == 31) vertices.emplace_back(Vertex{i, vector<int>{38, 43, 47}, vector<int>{8, 11, 13}});
+        else if (i == 32) vertices.emplace_back(Vertex{i, vector<int>{39, 44, 48}, vector<int>{9, 11, 14}});
+        else if (i == 33) vertices.emplace_back(Vertex{i, vector<int>{40, 44, 49}, vector<int>{9, 12, 14}});
+        else if (i == 34) vertices.emplace_back(Vertex{i, vector<int>{41, 45, 50}, vector<int>{10, 12, 15}});
+        else if (i == 35) vertices.emplace_back(Vertex{i, vector<int>{42, 45, 51}, vector<int>{10, 15}});
+        else if (i == 36) vertices.emplace_back(Vertex{i, vector<int>{46, 54}, vector<int>{13}});
+        else if (i == 37) vertices.emplace_back(Vertex{i, vector<int>{47, 52, 55}, vector<int>{11, 13, 16}});
+        else if (i == 38) vertices.emplace_back(Vertex{i, vector<int>{48, 52, 56}, vector<int>{11, 14, 16}});
+        else if (i == 39) vertices.emplace_back(Vertex{i, vector<int>{49, 53, 57}, vector<int>{12, 14, 17}});
+        else if (i == 40) vertices.emplace_back(Vertex{i, vector<int>{50, 53, 58}, vector<int>{12, 15, 17}});
+        else if (i == 41) vertices.emplace_back(Vertex{i, vector<int>{51, 59}, vector<int>{15}});
+        else if (i == 42) vertices.emplace_back(Vertex{i, vector<int>{54, 60}, vector<int>{13}});
+        else if (i == 43) vertices.emplace_back(Vertex{i, vector<int>{55, 60, 63}, vector<int>{13, 16}});
+        else if (i == 44) vertices.emplace_back(Vertex{i, vector<int>{56, 61, 64}, vector<int>{14, 16, 18}});
+        else if (i == 45) vertices.emplace_back(Vertex{i, vector<int>{57, 61, 65}, vector<int>{14, 17, 18}});
+        else if (i == 46) vertices.emplace_back(Vertex{i, vector<int>{58, 62, 66}, vector<int>{15, 17}});
+        else if (i == 47) vertices.emplace_back(Vertex{i, vector<int>{59, 62}, vector<int>{15}});
+        else if (i == 48) vertices.emplace_back(Vertex{i, vector<int>{63, 67}, vector<int>{16}});
+        else if (i == 49) vertices.emplace_back(Vertex{i, vector<int>{64, 67, 69}, vector<int>{16, 18}});
+        else if (i == 50) vertices.emplace_back(Vertex{i, vector<int>{65, 68, 70}, vector<int>{17, 18}});
+        else if (i == 51) vertices.emplace_back(Vertex{i, vector<int>{66, 68}, vector<int>{17}});
+        else if (i == 52) vertices.emplace_back(Vertex{i, vector<int>{69, 71}, vector<int>{18}});
+        else vertices.emplace_back(Vertex{i, vector<int>{70, 71}, vector<int>{18}}); 
     }
     // Create Edges
     int row = 0;
