@@ -13,7 +13,7 @@ export class Player {
     int points = 0;
     Inventory items;
     unique_ptr<Dice> dice[2];
-    unique_ptr<Dice> die;
+    Dice *die;
   public:
     Player(Colour c, unsigned seed);
 

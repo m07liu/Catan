@@ -15,13 +15,13 @@ import player;
 using namespace std;
 
 
-Game::Game(int type, unsigned seed, const string & file) {
+Game::Game(int type, unsigned seed, const string & file) : rng{seed} {
     ifstream source {file};
     auto factory = make_unique<BoardFactory>();
     board = factory->createBoard(type, seed, source);
     players.reserve(4);
     for (int i = 0; i < 4; ++i) {
-        players.emplace_back(static_cast<Colour>(i), seed);
+        players.emplace_back(static_cast<Colour>(i), seed+i);
     }
 }
 
@@ -55,8 +55,8 @@ void Game::printAll() const {
 
 void Game::printBuildings(const Player &p) const {
     cout << colourToString(p.getColour()) << " has built:\n";
-    for (int id: housesOf(p)) {
-        cout << id << " " << buildingLevelToChar(board->findVertex(id).getBuilding().level) << "\n";
+    for (pair<int, BuildingLevel> pr: buildingsOwnedBy(p.getColour())) {
+        cout << pr.first << " " << board->buildingLevelToChar(pr.second) << "\n";
     }
 }
 
@@ -89,16 +89,17 @@ void Game::setup() {
             prompt();
 
             try { n = stoi(readToken()); } 
+            catch (EndOfInput &) { throw; } 
             catch (...) { cout << "You cannot build here." << endl; continue; }
 
-            if (n < 0 || n >= NUM_VERTICES || !board->findVertex(n).hasBuilding()) {
+            if (!board->canBuild(n, c, true)) {
                 cout << "You cannot build here." << endl; continue;
             }
 
             break;
         }
 
-        board->findVertex(n).build(c);
+        board->build(n, c);
         p.addPoints(1);
         if (i >= 4) {
             Inventory inventory;
@@ -128,8 +129,8 @@ void Game::beginTurn(Player &p) {
 
     while (true) {
         prompt();
-        string cmd = readToken();
-        if (cmd == "loaded") { p.setDice(1); }
+        string cmd = toLower(readToken());
+        if (cmd == "load") { p.setDice(1); }
         else if (cmd == "fair") { p.setDice(0); }
         else if (cmd == "roll") {
             processRoll(p, p.roll());
@@ -143,7 +144,7 @@ void Game::beginTurn(Player &p) {
 void Game::duringTurn(Player &p) {
     while (true) {
         prompt();
-        string cmd = readToken();
+        string cmd = toLower(readToken());
 
         if (cmd == "board") {
             cout << *board;
@@ -157,17 +158,17 @@ void Game::duringTurn(Player &p) {
         } else if (cmd == "build-road") {
             auto num = readInt();
             if (!num) cout << "You cannot build here." << endl;
-            else if (isPlaceable(p, num)) place(p, num);
+            else if (isPlaceable(p, *num)) place(p, *num);
 
         } else if (cmd == "build-res") {
             auto num = readInt();
             if (!num) cout << "You cannot build here." << endl;
-            else if (isBuildable(p, num)) build(p, num);
+            else if (isBuildable(p, *num)) build(p, *num);
             
         } else if (cmd == "improve") {
             auto num = readInt();
             if (!num) cout << "You cannot build here." << endl;
-            else if (canImprove(p, num)) improve(p, num);
+            else if (canImprove(p, *num)) improve(p, *num);
 
         } else if (cmd == "trade") {
             string toWhom = readToken();
@@ -184,6 +185,7 @@ void Game::duringTurn(Player &p) {
         } else {
             cout << "Invalid command." << endl;
         }
+        if (winner != -1) return;
     }
 }
 
@@ -254,6 +256,7 @@ void Game::moveGeese(Player &p) {
         prompt();
 
         try { n = stoi(readToken()); } 
+        catch (EndOfInput &) { throw; } 
         catch (...) { continue; }
 
         if (n < 0 || n >= NUM_TILES || n == board->getGeeseTile()) continue;
@@ -303,15 +306,15 @@ void Game::moveGeese(Player &p) {
     int pick = pickRandomResource(victim.getResources(), rng);
     victim.giveResources(singletonInv(pick));
     p.addResources(singletonInv(pick));
-    cout << "Builder " << colourToString(p.getColour()) << " steals " << invnumToResource(idx) << " from builder " << colourToString(target) << "." << endl;
+    cout << "Builder " << colourToString(p.getColour()) << " steals " << invnumToResource(pick) << " from builder " << colourToString(*target) << "." << endl;
 
 }
 
 void Game::distributeResources(int rollVal) {
-    const vector<Tile> &tiles = board->findTiles(rollVal);
     vector<Inventory> distribute(4);
-    for (const Tile &tile: tiles) {
-        if (tile.getType() == TileType::PARK || tile.hasGeese()) return;
+    for (int tid: board->findTiles(rollVal)) {
+        const Tile &tile = board->findTile(tid);
+        if (tile.getType() == TileType::PARK || tile.hasGeese()) continue;
         for (int id: tile.getAdjVertices()) {
             const Vertex &v = board->findVertex(id);
             if (v.hasBuilding()) {
@@ -321,9 +324,9 @@ void Game::distributeResources(int rollVal) {
         }
     }
 
-    vector<Colour> gained;
+    vector<int> gained;
     for (int i = 0; i < 4; ++i) {
-        if (!distribute[i].isEmpty()) gained.push_back(static_cast<Colour>(i));
+        if (!distribute[i].isEmpty()) gained.push_back(i);
     }
 
     if (gained.empty()) {
@@ -331,10 +334,11 @@ void Game::distributeResources(int rollVal) {
         return;
     }
 
-    for (Colour c : gained) {
-        cout << "Builder " << colourToString(c) << " gained:\n";
+    for (int n : gained) {
+        players[n].addResources(distribute[n]);
+        cout << "Builder " << colourToString(static_cast<Colour>(n)) << " gained:\n";
         for (int i = 0; i < 5; ++i) {
-            int num = distribute[static_cast<int>(c)][i];
+            int num = distribute[n][i];
             if (num > 0) {
                 cout << num << " " << invnumToResource(i) << "\n";
             }
@@ -386,9 +390,7 @@ void Game::place(Player &p, int edgeId) {
 }
 
 bool Game::canImprove(const Player &p, int vertexId) {
-    if (vertexId < 0 || vertexId >= NUM_VERTICES || !board->findVertex(vertexId).hasBuilding() 
-        || board->findVertex(vertexId).getBuilding().level == BuildingLevel::TOWER) {
-        
+    if (!board->canUpgrade(vertexId, p.getColour())) {
         cout << "You cannot build here." << endl;
         return false;
     }
@@ -435,8 +437,8 @@ bool Game::canTrade(Player &p1, const string &colour, const string &give, const 
     }
 
     Player &p2 = players[static_cast<int>(*c)];
-    if (p2.getResource()[*r2] == 0) {
-        cout << "The other player don't have enough resources." << endl;
+    if (p2.getResources()[*r2] == 0) {
+        cout << "The other player doesn't have enough resources." << endl;
         return false;
     }
 
@@ -451,9 +453,16 @@ void Game::trade(Player &p1, const string &colour, const string &give, const str
     auto c = parseColour(colour);
 
     cout << colourToString(p1.getColour()) << " offers " << colourToString(*c) << " one " << invnumToResource(*r1) << " for one " << invnumToResource(*r2) << "." << endl;
-    cout << "Does " << colourToString(*c) << " accept this offer?" << endl;
-    prompt();
-    if (readToken() != "yes") return;
+
+    while (true) {
+        cout << "Does " << colourToString(*c) << " accept this offer?" << endl;
+        prompt();
+        string str = toLower(readToken());
+        if (str == "yes") break;
+        if (str == "no") return;
+        cout << "Invalid command." << endl;
+        
+    }
 
     Player &p2 = players[static_cast<int>(*c)];
     p1.giveResources(singletonInv(*r1));
@@ -549,7 +558,7 @@ void Game::load(istream &in) {
 
     getline(in, line); 
     istringstream bs{line};
-    board->loadBoard(bs);
+    board->setLayout(bs);
 
     int geeseLoc;
     in >> geeseLoc;
@@ -569,7 +578,7 @@ bool Game::run() {
         while (true){
             cout << "Would you like to play again?" << endl;
             prompt();
-            string str = readToken();
+            string str = toLower(readToken());
             if (str == "yes") return true;
             else if (str == "no") return false;
             
@@ -579,6 +588,7 @@ bool Game::run() {
 
     } catch (EndOfInput &e) {
         save("backup.sv");
+        return false;
     }
     
     return false;

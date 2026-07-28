@@ -9,7 +9,7 @@ Edge::Edge(int id, vector<int> adjVertices) : id{id}, adjVertices{move(adjVertic
 
 int Edge::getId() const { return id; }
 
-const vector<int> &Edge::getAdjVertices const { return adjVertices; }
+const vector<int> &Edge::getAdjVertices() const { return adjVertices; }
 
 Colour Edge::getOwner() const { return road.owner; }
 

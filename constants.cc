@@ -11,6 +11,8 @@ export const int NUM_TILES = 19;
 export const int NUM_VERTICES = 54;
 export const int NUM_EDGES = 72;
 
+export struct EndOfInput {};
+
 export enum class Colour {BLUE, RED, ORANGE, YELLOW, NONE};
 export enum class TileType {BRICK, ENERGY, GLASS, HEAT, WIFI, PARK};
 export enum class ResourceType {BRICK, ENERGY, GLASS, HEAT, WIFI, NONE};
@@ -64,5 +66,7 @@ export Inventory singletonInv(int i);
 
 export optional<Colour> parseColour(const string &s);
 export optional<int> parseResourceIdx(const string &s);
+
+export string toLower(string s);
 
 

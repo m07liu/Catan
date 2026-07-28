@@ -13,9 +13,9 @@ int Tile::getVal() const { return val; }
 TileType Tile::getType() const { return type; }
 const vector<int> &Tile::getAdjVertices() const { return adjVertices; }
 const vector<int> &Tile::getAdjEdges() const { return adjEdges; }
-void changeTile(int val, TileType type) {
-    val = val;
-    type = type;
+void Tile::changeTile(int val, TileType type) {
+    this->val = val;
+    this->type = type;
 }
 bool Tile::hasGeese() const { return geese; }
 void Tile::setGeese() { geese = ! geese; }

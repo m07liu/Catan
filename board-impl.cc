@@ -382,9 +382,9 @@ int Board::getGeeseTile() const { return geeseTile; };
 
 void Board::moveGeese(int id) {
     if (!isTile(id) || id == geeseTile) return;
-    tiles[geeseTile].setGeese(false);
+    tiles[geeseTile].setGeese();
     geeseTile = id;
-    tiles[geeseTile].setGeese(true);
+    tiles[geeseTile].setGeese();
 }
 
 vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
@@ -406,7 +406,7 @@ vector<Colour> Board::ownersOnTile(int tileId, Colour active) const {
 }
 
 //legal move check
-bool Board::canBuild(int id, Colour c) const{
+bool Board::canBuild(int id, Colour c, bool setupPhase) const{
     if (!isVertex(id)) return false;
     const Vertex &v = vertices[id];
     if (v.hasBuilding()) return false;
@@ -417,9 +417,10 @@ bool Board::canBuild(int id, Colour c) const{
             if (nb != id && vertices[nb].hasBuilding()) return false;
         }
     }
- 
+
     if (setupPhase) return true;
- 
+
+    // settlement in the setup phase is handled in game.setup()
     // Otherwise this builder needs a road touching the vertex.
     for (int eid : v.getAdjEdges()) {
         if (edges[eid].hasRoad() && edges[eid].getOwner() == c) return true;
@@ -461,7 +462,7 @@ void Board::build(int id, Colour c)     { vertices[id].build(c); }
 void Board::improve(int id)             { vertices[id].upgradeBuilding(); }
 void Board::placeRoad(int id, Colour c) { edges[id].placeRoad(c); }
 
-vector<int> roadsOwnedBy(Colour c) const {
+vector<int> Board::roadsOwnedBy(Colour c) const {
     vector<int> ret {};
     int id = 0;
     for (auto iter : edges) {
@@ -471,15 +472,22 @@ vector<int> roadsOwnedBy(Colour c) const {
     return ret;
 }
 
-vector<pair<int, BuildingLevel>> buildingsOwnedBy(Colour c) const {
+vector<pair<int, BuildingLevel>> Board::buildingsOwnedBy(Colour c) const {
     vector<pair<int, BuildingLevel>> ret {};
     int id = 0;
     for (auto iter : vertices) {
-        if (iter.getOwner() == c) ret.emplace_back({id, iter.getBuilding().level});
+        if (iter.getOwner() == c) ret.push_back({id, iter.getBuilding().level});
+        id++;
     }
     return ret;
 }
 
+void Board::setLayout(istream &in) {
+    int type, val;
+    for (int i = 0; i < NUM_TILES && (in >> type >> val); ++i) {
+        tiles[i] = Tile{i, val, static_cast<TileType>(type), TILE_VERTICES[i], TILE_EDGES[i]};
+    }
+}
 
 //------------------------------Concrete Products-------------------------------
 
@@ -509,7 +517,7 @@ void RandomBoard::init(bool load) {
             tiles[i].setGeese(); // Change Geese to True
             geeseTile = i;
         } else {
-            tiles.emplace_back(Tile{i, dicenums[i], tiles[tilesindex], TILE_VERTICES[i], TILE_EDGES[i]});
+            tiles.emplace_back(Tile{i, dicenums[i], types[typesIndex], TILE_VERTICES[i], TILE_EDGES[i]});
             typesIndex++;
         }
     }
@@ -539,17 +547,13 @@ void FileBoard::init(bool load) {
 }
 
 
-void FileBoard::loadBoard(istream &s) { 
-    src= &s;
-}
-
 unique_ptr<Board> BoardFactory::createBoard(int type, unsigned seed, istream &src) {
     if (type == 0) {
-        auto ret = make_unique<Board>(seed);
+        auto ret = make_unique<RandomBoard>(seed);
         ret->init(false);
         return ret;
     }
-    auto ret = make_unique<Board>(src);
+    auto ret = make_unique<FileBoard>(src);
     ret->init(false);
     return ret;
 }

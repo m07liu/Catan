@@ -11,7 +11,6 @@ import player;
 
 using namespace std;
 
-export struct EndOfInput {};
 
 export class Game {
     unique_ptr<Board> board;
@@ -48,8 +47,6 @@ export class Game {
     void trade(Player &p1, const string &colour, const string &give, const string &receive); 
     bool canSteal(auto c, vector<Colour> &pv);
 
-    vector<int> housesOf(const Player &p) const; // vertex ids
-    vector<int> roadsOf(const Player &p) const; // edge ids
     Player &colourToPlayer(Colour c) const;
     Colour playerToColour(const Player &p) const;
     string savePlayer(int i) const;
