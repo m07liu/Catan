@@ -9,13 +9,11 @@ export class Vertex {
     int id;
     Building building;
     vector<int> adjEdges;
-    vector<int> adjTiles;
 
   public:
-    Vertex(int id, vector<int> adjEdges, vector<int> adjTiles);
+    Vertex(int id, vector<int> adjEdges);
 
     int getId() const;
-    const vector<int> &getAdjTiles() const;
     const vector<int> &getAdjEdges() const;
     const Building &getBuilding() const;
     Colour getOwner() const;
@@ -24,7 +22,6 @@ export class Vertex {
     string printBuilding() const;
     void build(Colour c);
     
-    // bool isBuildableBy(Colour c);
 
 };
 
