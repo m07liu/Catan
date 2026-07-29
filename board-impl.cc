@@ -19,8 +19,6 @@ using namespace std;
 enum { TL, TR, ML, MR, BL, BR };
 enum { E_TOP, E_UL, E_UR, E_LL, E_LR, E_BOT };
  
-const int NUM_TILES = 19, NUM_VERTICES = 54, NUM_EDGES = 72;
- 
 const vector<vector<int>> TILE_VERTICES = {
     { 0,  1,  3,  4,  8,  9},
     { 2,  3,  7,  8, 13, 14}, { 4,  5,  9, 10, 15, 16},
